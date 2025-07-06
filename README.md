@@ -37,4 +37,15 @@ go get github.com/golang-migrate/migrate/v4/source/file
 ```bash
 go get github.com/joho/godotenv
 ```
+
+### 3. (ACID)
+```bash
+go get github.com/gogaruda/dbtx@v1.0.1
+```
+
+### 4. ID Generator
+#### - ULID
+```bash
+go get github.com/oklog/ulid/v2
+```
 ---
