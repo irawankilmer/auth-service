@@ -1,0 +1,11 @@
+CREATE TABLE email_verifications(
+  id VARCHAR(26) NOT NULL PRIMARY KEY,
+  user_id VARCHAR(26) NOT NULL,
+  token TEXT NOT NULL,
+  expires_at DATETIME NOT NULL,
+  is_used BOOLEAN DEFAULT false,
+
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
