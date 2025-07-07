@@ -15,5 +15,6 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	user.GET("/", userHandler.GetAll)
 	user.POST("/", userHandler.Create)
 	user.GET("/:id", userHandler.FindByID)
+	user.PATCH("/:id/username", userHandler.UsernameUpdate)
 	user.DELETE("/:id", userHandler.Delete)
 }

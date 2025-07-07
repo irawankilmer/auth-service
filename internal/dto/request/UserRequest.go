@@ -19,6 +19,12 @@ type UserUpdateUsernameRequest struct {
 	Username string `json:"username" binding:"required,excludesall= "`
 }
 
+func (u *UserUpdateUsernameRequest) Sanitize() map[string]any {
+	return map[string]any{
+		"username": u.Username,
+	}
+}
+
 type UserUpdateEmailRequest struct {
 	Email string `json:"email" binding:"required,email"`
 }

@@ -14,6 +14,7 @@ type UserService interface {
 	GetAll(ctx context.Context, limit, offset int) ([]response.UserResponse, int, error)
 	Create(ctx context.Context, req request.UserCreateRequest) error
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
+	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -113,6 +114,44 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 
 func (s *userService) FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error) {
 	return s.userRepo.FindByID(ctx, userID)
+}
+
+func (s *userService) UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error) {
+	// cek apakah username diubah?
+	currentUsername := ""
+	if user.Username != nil {
+		currentUsername = *user.Username
+	}
+
+	if currentUsername == newUsername {
+		return false, nil
+	}
+
+	// cek username dari table users
+	usernameChange, err := s.userRepo.UsernameChange(ctx, user, newUsername)
+	if err != nil {
+		return false, err
+	}
+
+	if usernameChange {
+		return false, apperror.New(apperror.CodeUsernameConflict, "username sudah terdaftar", err)
+	}
+
+	// cek username dari tabel username_history
+	usernameExists, err := s.usernameRepo.IsUsernameExists(ctx, newUsername)
+	if err != nil {
+		return false, err
+	}
+	if usernameExists {
+		return false, apperror.New(apperror.CodeUsernameConflict, "username sudah terdaftar", err)
+	}
+
+	// update username
+	if err := s.userRepo.UsernameUpdate(ctx, user, newUsername); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (s *userService) Delete(ctx context.Context, user *response.UserDetailResponse) error {

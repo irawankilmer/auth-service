@@ -13,9 +13,12 @@ import (
 type UserRepository interface {
 	GetAll(ctx context.Context, limit, offset int) ([]response.UserResponse, int, error)
 	CheckUsername(ctx context.Context, username string) (bool, error)
+	UsernameChange(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
 	CheckEmail(ctx context.Context, email string) (bool, error)
+	EmailChange(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
 	Create(ctx context.Context, user *model.UserModel) error
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
+	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -142,12 +145,34 @@ func (r *userRepository) CheckUsername(ctx context.Context, username string) (bo
 	return exists, nil
 }
 
+func (r *userRepository) UsernameChange(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error) {
+	const query = `SELECT exists(SELECT 1 FROM users WHERE username = ? AND id != ?)`
+	var exists bool
+	err := r.db.QueryRowContext(ctx, query, newUsername, user.ID).Scan(&exists)
+	if err != nil {
+		return false, apperror.New(apperror.CodeDBError, "cek username gagal", err)
+	}
+
+	return exists, nil
+}
+
 func (r *userRepository) CheckEmail(ctx context.Context, email string) (bool, error) {
 	const query = `SELECT exists(SELECT 1 FROM users WHERE email = ?)`
 	var exists bool
 	err := r.db.QueryRowContext(ctx, query, email).Scan(&exists)
 	if err != nil {
 		return false, apperror.New("[CODE_EMAIL_CHECK_INVALID]", "gagal memeriksa email", err, 500)
+	}
+
+	return exists, nil
+}
+
+func (r *userRepository) EmailChange(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error) {
+	const query = `SELECT exists(SELECT 1 FROM users WHERE email = ? AND id != ?)`
+	var exists bool
+	err := r.db.QueryRowContext(ctx, query, newEmail, user.ID).Scan(&exists)
+	if err != nil {
+		return false, apperror.New(apperror.CodeDBError, "cek email gagal", err)
 	}
 
 	return exists, nil
@@ -298,11 +323,31 @@ func (r *userRepository) FindByID(ctx context.Context, userID string) (*response
 	return user, nil
 }
 
+func (r *userRepository) UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error {
+	return dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
+		const (
+			queryUser            = `UPDATE users SET username = ? WHERE id = ?`
+			queryUsernameHistory = `INSERT INTO username_history(username) VALUES(?)`
+		)
+
+		_, err := tx.ExecContext(ctx, queryUser, newUsername, user.ID)
+		if err != nil {
+			return apperror.New(apperror.CodeDBError, "update username gagal", err)
+		}
+
+		_, err = tx.ExecContext(ctx, queryUsernameHistory, user.Username)
+		if err != nil {
+			return apperror.New(apperror.CodeDBError, "gagal insert username_history", err)
+		}
+		return nil
+	})
+}
+
 func (r *userRepository) Delete(ctx context.Context, user *response.UserDetailResponse) error {
 	const (
 		queryUsers           = `DELETE FROM users WHERE id = ?`
-		queryUsernameHistory = `INSERT INTO username_history (username) VALUES (?) ON DUPLICATE KEY UPDATE username = VALUES (username)`
-		queryEmailHistory    = `INSERT INTO email_history (email) VALUES (?) ON DUPLICATE KEY UPDATE email = VALUES (email)`
+		queryUsernameHistory = `INSERT INTO username_history(username) VALUES(?)`
+		queryEmailHistory    = `INSERT INTO email_history(email) VALUES(?)`
 	)
 
 	return dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
