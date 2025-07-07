@@ -38,18 +38,6 @@ func User(db *sql.DB, u utils.Utility) error {
 			return fmt.Errorf("query users gagal: %w", err)
 		}
 
-		// create username_history
-		_, err = tx.ExecContext(ctx, `INSERT INTO username_history(username) VALUES(?)`, "superadmin")
-		if err != nil {
-			return fmt.Errorf("create username_history gagal: %w", err)
-		}
-
-		// create email_history
-		_, err = tx.ExecContext(ctx, `INSERT INTO email_history(email) VALUES(?)`, "superadmin@gmail.com")
-		if err != nil {
-			return fmt.Errorf("create email_history gagal: %w", err)
-		}
-
 		// create profiles
 		_, err = tx.ExecContext(ctx, `INSERT INTO profiles(id, user_id, full_name, address, gender, image) VALUES(?, ?, ?, ?, ?, ?)`,
 			u.ULIDGenerate(), userID, "Super Admin Pertama", "Samarang awi", 1, "default.jpg")

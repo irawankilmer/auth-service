@@ -1,4 +1,4 @@
-# README
+# Auth Service
 System Authentikasi sederhana:
 1. Migrasi dan Seeder
 
@@ -47,5 +47,20 @@ go get github.com/gogaruda/dbtx@v1.0.1
 #### - ULID
 ```bash
 go get github.com/oklog/ulid/v2
+```
+
+### 5. Error Handling System
+```bash
+go get github.com/gogaruda/apperror@v1.2.2
+```
+
+### 6. GIN
+```bash
+go get -u github.com/gin-gonic/gin
+```
+
+### 7. Validasi
+```bash
+go get github.com/gogaruda/valigo@v1.0.2
 ```
 ---

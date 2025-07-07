@@ -1,0 +1,83 @@
+package handler
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/gogaruda/apperror"
+	"github.com/gogaruda/valigo"
+	"github.com/irawankilmer/auth-service/internal/dto/request"
+	"github.com/irawankilmer/auth-service/internal/service"
+	"github.com/irawankilmer/auth-service/pkg/response"
+	"strconv"
+)
+
+type UserHandler struct {
+	userService service.UserService
+	validate    *valigo.Valigo
+}
+
+func NewUserHandler(us service.UserService, v *valigo.Valigo) *UserHandler {
+	return &UserHandler{userService: us, validate: v}
+}
+
+func (h *UserHandler) GetAll(c *gin.Context) {
+	res := response.NewResponder(c)
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	offset := (page - 1) * limit
+
+	users, total, err := h.userService.GetAll(c.Request.Context(), limit, offset)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	meta := response.MetaData{
+		Total: total,
+		Page:  page,
+		Limit: limit,
+	}
+
+	res.OK(users, "query ok", &meta)
+}
+
+func (h *UserHandler) Create(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.UserCreateRequest
+	if !h.validate.ValigoJSON(c, &req) {
+		return
+	}
+
+	if err := h.userService.Create(c.Request.Context(), req); err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	res.Created(nil, "user baru berhasil dibuat")
+}
+
+func (h *UserHandler) FindByID(c *gin.Context) {
+	res := response.NewResponder(c)
+	user, err := h.userService.FindByID(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	res.OK(user, "query ok", nil)
+}
+
+func (h *UserHandler) Delete(c *gin.Context) {
+	res := response.NewResponder(c)
+	user, err := h.userService.FindByID(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	if err := h.userService.Delete(c.Request.Context(), user); err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	res.NoContent()
+}

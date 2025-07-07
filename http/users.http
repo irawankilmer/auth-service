@@ -1,0 +1,27 @@
+### Delete user
+DELETE http://localhost:8080/api/users/01JZJJKAPGA9GNP7B0RJQJCT9S
+Accept: application/json
+
+###
+### Get User by ID
+GET http://localhost:8080/api/users/01JZJJKAPGA9GNP7B0RJQJCT9S
+Accept: application/json
+
+### Get Users
+GET http://localhost:8080/api/users/
+Accept: application/json
+
+### Create user
+POST http://localhost:8080/api/users/
+Content-Type: application/json
+
+{
+  "username": "suparman",
+  "email": "suparman@gmail.com",
+  "password": "suparman",
+  "profile": {
+    "full_name": "Saya Suparman Reborn 6"
+  },
+  "roles": ["editor"]
+}
+
