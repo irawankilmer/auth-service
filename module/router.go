@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gogaruda/valigo"
 	"github.com/irawankilmer/auth-service/internal/handler"
+	"github.com/irawankilmer/auth-service/internal/middleware"
 )
 
 func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
@@ -18,6 +19,7 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 
 	user := rg.Group("/users")
 	user.Use(app.Middleware.AuthMiddleware())
+	user.Use(app.Middleware.RoleMiddleware(middleware.MatchAny, "super admin", "admin"))
 	user.GET("", userHandler.GetAll)
 	user.POST("", userHandler.Create)
 	user.GET("/:id", userHandler.FindByID)

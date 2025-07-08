@@ -1,14 +1,14 @@
 ### logout
 POST http://localhost:8080/api/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImV4cCI6MTc1MTk5MTU3NiwiaWF0IjoxNzUxOTkwNjc2LCJyb2xlcyI6WyJlZGl0b3IiXSwidG9rZW5fdmVyc2lvbiI6ImY5MzViZjU3LTA5NWMtNDM3Mi04OGI3LWQ2YjM4MWU5NWM4NiIsInVzZXJfaWQiOiIwMUpaTVk0NlBFNDBXM0FSODJOOVIwSE1DNSJ9.CLs4leAI9HrZrH0Kjs6t-PEYXh7BrXoB5lr155NjmzI
 
 ### Login
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "identifier": "superadmin",
-  "password": "superadmin"
+  "identifier": "ghania",
+  "password": "ghania"
 }
 
 ### register

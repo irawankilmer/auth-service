@@ -9,6 +9,7 @@ import (
 type Middleware interface {
 	CORSMiddleware() gin.HandlerFunc
 	AuthMiddleware() gin.HandlerFunc
+	RoleMiddleware(matchType RoleMatchType, requiredRoles ...string) gin.HandlerFunc
 }
 
 type middleware struct {

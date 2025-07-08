@@ -2,6 +2,12 @@
 System Authentikasi sederhana:
 1. Migrasi dan Seeder
 2. Manajemen User
+3. Auth System (login, logout, register tamu) 
+4. middleware
+    - Cors
+    - Auth
+    - Role
+5. a
 
 ---
 ## Migrasi dan seeder
