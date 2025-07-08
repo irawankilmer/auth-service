@@ -22,6 +22,7 @@ type UserRepository interface {
 	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error
 	PasswordReset(ctx context.Context, user *response.UserDetailResponse, newPassword string) error
+	RoleUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []model.RoleModel) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -374,8 +375,43 @@ func (r *userRepository) PasswordReset(ctx context.Context, user *response.UserD
 	if err != nil {
 		return apperror.New("[PASSWORD_RESET_VAILED]", "reset password gagal", err, http.StatusInternalServerError)
 	}
-	
+
 	return nil
+}
+
+func (r *userRepository) RoleUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []model.RoleModel) error {
+	return dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
+		const (
+			queryDelete = `DELETE FROM user_roles WHERE user_id = ?`
+			queryInsert = `INSERT INTO user_roles(user_id, role_id) VALUES(?, ?)`
+		)
+
+		// hapus semua roles lama
+		if _, err := tx.ExecContext(ctx, queryDelete, user.ID); err != nil {
+			return apperror.New(apperror.CodeDBError, "delete roles gagal", err)
+		}
+
+		// memastikan roles baru memang ada
+		if len(newRoles) == 0 {
+			return apperror.New(apperror.CodeInvalidInput, "roles tidak boleh kosong", errors.New("roles tidak boleh kosong"))
+		}
+
+		// prepare roles baru
+		stmt, err := tx.PrepareContext(ctx, queryInsert)
+		if err != nil {
+			return apperror.New(apperror.CodeDBError, "prepare create roles gagal", err)
+		}
+		defer stmt.Close()
+
+		// insert roles baru
+		for _, r := range newRoles {
+			if _, err := stmt.ExecContext(ctx, user.ID, r.ID); err != nil {
+				return apperror.New(apperror.CodeDBError, "query create roles gagal", err)
+			}
+		}
+
+		return nil
+	})
 }
 
 func (r *userRepository) Delete(ctx context.Context, user *response.UserDetailResponse) error {

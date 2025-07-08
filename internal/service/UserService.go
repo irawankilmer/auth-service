@@ -19,6 +19,7 @@ type UserService interface {
 	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
 	PasswordReset(ctx context.Context, user *response.UserDetailResponse) (string, error)
+	RolesUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []string) (bool, error)
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -201,6 +202,26 @@ func (s *userService) PasswordReset(ctx context.Context, user *response.UserDeta
 	}
 
 	return s.config.Password.Default, nil
+}
+
+func (s *userService) RolesUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []string) (bool, error) {
+	// cek role baru apakah tersedia di database
+	newRolesCheck, err := s.roleRepo.CheckRoles(ctx, newRoles)
+	if err != nil {
+		return false, err
+	}
+
+	// bandingkan role lama dan baru
+	if s.roleRepo.RoleIDsEqual(user.Roles, newRolesCheck) {
+		return false, nil
+	}
+
+	// update roles
+	if err := s.userRepo.RoleUpdate(ctx, user, newRolesCheck); err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (s *userService) Delete(ctx context.Context, user *response.UserDetailResponse) error {

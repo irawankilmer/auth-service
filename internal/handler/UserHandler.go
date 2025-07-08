@@ -147,8 +147,40 @@ func (h *UserHandler) PasswordReset(c *gin.Context) {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
-	
+
 	res.OK(newPassword, "password berhasil di reset", nil)
+}
+
+func (h *UserHandler) RoleUpdate(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.RoleRequest
+	ctx := c.Request.Context()
+
+	// cek user
+	user, err := h.userService.FindByID(ctx, c.Param("id"))
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// validasi
+	if !h.validate.ValigoJSON(c, &req) {
+		return
+	}
+
+	// roles update
+	rolesUpdate, err := h.userService.RolesUpdate(ctx, user, req.Roles)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	if !rolesUpdate {
+		res.OK(nil, "tidak ada perubahan pada roles", nil)
+		return
+	}
+
+	res.Created(nil, "role berhasil di update")
 }
 
 func (h *UserHandler) Delete(c *gin.Context) {

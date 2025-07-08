@@ -47,3 +47,12 @@ Content-Type: application/json
 ### Password reset
 PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/reset-password
 Content-Type: application/json
+
+###
+### Roles update
+PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/roles-update
+Content-Type: application/json
+
+{
+  "roles": ["penulis"]
+}

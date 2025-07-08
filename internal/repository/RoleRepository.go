@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gogaruda/apperror"
+	"github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/model"
 	"strings"
 )
 
 type RoleRepository interface {
 	CheckRoles(ctx context.Context, roles []string) ([]model.RoleModel, error)
+	RoleIDsEqual(oldRoles []response.RoleResponse, newRoles []model.RoleModel) bool
 }
 
 type roleRepository struct {
@@ -85,4 +87,25 @@ func (r *roleRepository) CheckRoles(ctx context.Context, roles []string) ([]mode
 	}
 
 	return foundRoles, nil
+}
+
+func (r *roleRepository) RoleIDsEqual(oldRoles []response.RoleResponse, newRoles []model.RoleModel) bool {
+	if len(oldRoles) != len(newRoles) {
+		return false
+	}
+
+	// ambil ID dari oldRoles
+	oldMap := make(map[string]struct{})
+	for _, r := range oldRoles {
+		oldMap[r.ID] = struct{}{}
+	}
+
+	// cek semua ID dari newRoles yang ada di oldMap
+	for _, r := range newRoles {
+		if _, ok := oldMap[r.ID]; !ok {
+			return false
+		}
+	}
+
+	return true
 }
