@@ -10,22 +10,26 @@ import (
 )
 
 type BootstrapApp struct {
-	UserService service.UserService
+	AuthService service.AuthService
 	Middleware  middleware.Middleware
+	UserService service.UserService
 }
 
 func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
 	utilities := utils.NewUtility(cfg)
 
+	authRepository := repository.NewAuthRepository(db)
 	usernameRepo := repository.NewUsernameHistoryRepository(db)
 	emailRepo := repository.NewEmailHistoryRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
 	userRepo := repository.NewUserRepository(db)
 
+	authService := service.NewAuthService(authRepository, utilities, cfg)
 	userService := service.NewUserService(userRepo, roleRepo, usernameRepo, emailRepo, utilities, cfg)
 
-	middlewares := middleware.NewMiddleware(cfg)
+	middlewares := middleware.NewMiddleware(cfg, userRepo)
 	return &BootstrapApp{
+		AuthService: authService,
 		Middleware:  middlewares,
 		UserService: userService,
 	}

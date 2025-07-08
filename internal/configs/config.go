@@ -3,6 +3,7 @@ package configs
 import (
 	"os"
 	"strings"
+	"time"
 )
 
 type AppConfig struct {
@@ -11,6 +12,7 @@ type AppConfig struct {
 	Server   ServerPortConfig
 	Password Password
 	Cors     CORSConfig
+	JWT      JWTConfig
 }
 
 func LoadConfig() *AppConfig {
@@ -36,6 +38,10 @@ func LoadConfig() *AppConfig {
 			AllowMethods:     strings.Split(os.Getenv("CORS_ALLOW_METHODS"), ","),
 			AllowHeaders:     strings.Split(os.Getenv("CORS_ALLOW_HEADERS"), ","),
 			AllowCredentials: os.Getenv("CORS_ALLOW_CREDENTIALS") == "true",
+		},
+		JWT: JWTConfig{
+			Secret:         getSecretOrDefault("JWT_SECRET", "default-secret"),
+			AccessTokenTTL: 15 * time.Minute,
 		},
 	}
 }

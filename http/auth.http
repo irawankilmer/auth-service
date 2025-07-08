@@ -1,0 +1,22 @@
+### logout
+POST http://localhost:8080/api/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
+
+### Login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "identifier": "superadmin",
+  "password": "superadmin"
+}
+
+### register
+POST http://localhost:8080/api/register
+Content-Type: application/json
+
+{
+  "username": "irawankilmer",
+  "email": "irawankilmer@gmail.com",
+  "password": "irawankilmer@gmail.com"
+}

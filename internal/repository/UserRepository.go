@@ -13,6 +13,7 @@ import (
 
 type UserRepository interface {
 	GetAll(ctx context.Context, limit, offset int) ([]response.UserResponse, int, error)
+	FindUserByTokenVersion(ctx context.Context, userID string) (*model.UserModel, error)
 	CheckUsername(ctx context.Context, username string) (bool, error)
 	UsernameChange(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
 	CheckEmail(ctx context.Context, email string) (bool, error)
@@ -136,6 +137,19 @@ func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]respo
 	}
 
 	return users, total, nil
+}
+
+func (r *userRepository) FindUserByTokenVersion(ctx context.Context, userID string) (*model.UserModel, error) {
+	const query = `SELECT token_version FROM users WHERE id = ?`
+	var user model.UserModel
+
+	// query
+	err := r.db.QueryRowContext(ctx, query, userID).Scan(&user.TokenVersion)
+	if err != nil {
+		return nil, err
+	}
+	
+	return &user, nil
 }
 
 func (r *userRepository) CheckUsername(ctx context.Context, username string) (bool, error) {

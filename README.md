@@ -49,6 +49,10 @@ go get github.com/gogaruda/dbtx@v1.0.1
 ```bash
 go get github.com/oklog/ulid/v2
 ```
+#### - UUID
+```bash
+go get github.com/google/uuid
+```
 
 ### 5. Error Handling System
 ```bash
@@ -63,5 +67,10 @@ go get -u github.com/gin-gonic/gin
 ### 7. Validasi
 ```bash
 go get github.com/gogaruda/valigo@v1.0.2
+```
+
+### 8. JWT
+```bash
+go get github.com/golang-jwt/jwt/v5
 ```
 ---

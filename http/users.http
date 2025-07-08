@@ -1,18 +1,19 @@
 ### Delete user
-DELETE http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H
-Accept: application/json
+DELETE http://localhost:8080/api/users/01JZMY46PE40W3AR82N9R0HMC5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 
 ###
 ### Get User by ID
-GET http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H
-Accept: application/json
+GET http://localhost:8080/api/users/01JZMY46PE40W3AR82N9R0HMC5
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 
 ### Get Users
-GET http://localhost:8080/api/users/
-Accept: application/json
+GET http://localhost:8080/api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 
 ### Create user
-POST http://localhost:8080/api/users/
+POST http://localhost:8080/api/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 Content-Type: application/json
 
 {
@@ -27,7 +28,8 @@ Content-Type: application/json
 
 ###
 ### Username update
-PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/username
+PATCH http://localhost:8080/api/users/01JZMY46PE40W3AR82N9R0HMC5/username
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 Content-Type: application/json
 
 {
@@ -36,7 +38,8 @@ Content-Type: application/json
 
 ###
 ### Email update
-PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/email
+PATCH http://localhost:8080/api/users/01JZMY46PE40W3AR82N9R0HMC5/email
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 Content-Type: application/json
 
 {
@@ -45,12 +48,14 @@ Content-Type: application/json
 
 ###
 ### Password reset
-PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/reset-password
+PATCH http://localhost:8080/api/users/01JZMY46PE40W3AR82N9R0HMC5/reset-password
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 Content-Type: application/json
 
 ###
 ### Roles update
-PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/roles-update
+PATCH http://localhost:8080/api/users/01JZMY46PE40W3AR82N9R0HMC5/roles-update
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUxOTg5MTc2LCJpYXQiOjE3NTE5ODgyNzYsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiI5YjIwMGNiZi01M2U2LTRiOTItOWQxYy0yMDJiMDAxY2RmZTUiLCJ1c2VyX2lkIjoiMDFKWk1ZMjJFRFRWMkdTWE1IWUFNSzVTRTQifQ.55HfYuu7hS4hCCMdFrO-ImYDbGRwXkE9HzjwVwXueCM
 Content-Type: application/json
 
 {
