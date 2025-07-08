@@ -1,6 +1,7 @@
 # Auth Service
 System Authentikasi sederhana:
 1. Migrasi dan Seeder
+2. Manajemen User
 
 ---
 ## Migrasi dan seeder

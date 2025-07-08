@@ -1,12 +1,16 @@
 package configs
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 type AppConfig struct {
 	DB       DBConfig
 	Mode     GinModeConfig
 	Server   ServerPortConfig
 	Password Password
+	Cors     CORSConfig
 }
 
 func LoadConfig() *AppConfig {
@@ -26,6 +30,12 @@ func LoadConfig() *AppConfig {
 		},
 		Password: Password{
 			Default: getPasswordOrDefault("PASSWORD_DEFAULT", "123456Aa*"),
+		},
+		Cors: CORSConfig{
+			AllowOrigins:     strings.Split(os.Getenv("CORS_ALLOW_ORIGINS"), ","),
+			AllowMethods:     strings.Split(os.Getenv("CORS_ALLOW_METHODS"), ","),
+			AllowHeaders:     strings.Split(os.Getenv("CORS_ALLOW_HEADERS"), ","),
+			AllowCredentials: os.Getenv("CORS_ALLOW_CREDENTIALS") == "true",
 		},
 	}
 }

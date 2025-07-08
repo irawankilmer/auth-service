@@ -10,6 +10,7 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	v := valigo.NewValigo()
 
 	userHandler := handler.NewUserHandler(app.UserService, v)
+	rg.Use(app.Middleware.CORSMiddleware())
 
 	user := rg.Group("/users")
 	user.GET("/", userHandler.GetAll)
