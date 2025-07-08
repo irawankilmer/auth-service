@@ -1,10 +1,10 @@
 ### Delete user
-DELETE http://localhost:8080/api/users/01JZJZ3SM13GBR5WV29NGWDNSG
+DELETE http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H
 Accept: application/json
 
 ###
 ### Get User by ID
-GET http://localhost:8080/api/users/01JZJZ3SM13GBR5WV29NGWDNSG
+GET http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H
 Accept: application/json
 
 ### Get Users
@@ -16,20 +16,29 @@ POST http://localhost:8080/api/users/
 Content-Type: application/json
 
 {
-  "username": "sipirda",
-  "email": "sipirda@gmail.com",
-  "password": "sipirda",
+  "username": "ghania",
+  "email": "ghania@gmail.com",
+  "password": "ghania",
   "profile": {
-    "full_name": "Saya sipirda Reborn 6"
+    "full_name": "Saya ghania Reborn 6"
   },
   "roles": ["editor"]
 }
 
 ###
 ### Username update
-PATCH http://localhost:8080/api/users/01JZJZ3SM13GBR5WV29NGWDNSG/username
+PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/username
 Content-Type: application/json
 
 {
   "username": "sipirda"
+}
+
+###
+### Email update
+PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/email
+Content-Type: application/json
+
+{
+  "email": "gagaklumayung@gmail.com"
 }

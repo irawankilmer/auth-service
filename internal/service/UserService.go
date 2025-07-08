@@ -15,6 +15,7 @@ type UserService interface {
 	Create(ctx context.Context, req request.UserCreateRequest) error
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
+	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -148,6 +149,37 @@ func (s *userService) UsernameUpdate(ctx context.Context, user *response.UserDet
 
 	// update username
 	if err := s.userRepo.UsernameUpdate(ctx, user, newUsername); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *userService) EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error) {
+	if user.Email == newEmail {
+		return false, nil
+	}
+
+	// cek email dari tabel users
+	emailChange, err := s.userRepo.EmailChange(ctx, user, newEmail)
+	if err != nil {
+		return false, err
+	}
+	if emailChange {
+		return false, apperror.New(apperror.CodeEmailConflict, "email sudah terdaftar", err)
+	}
+
+	// cek email dari tabel email_history
+	emailHistory, err := s.emailRepo.IsEmailExists(ctx, newEmail)
+	if err != nil {
+		return false, err
+	}
+	if emailHistory {
+		return false, apperror.New(apperror.CodeEmailConflict, "email sudah terdaftar", err)
+	}
+
+	// update email
+	if err := s.userRepo.EmailUpdate(ctx, user, newEmail); err != nil {
 		return false, err
 	}
 

@@ -19,6 +19,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *model.UserModel) error
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error
+	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -338,6 +339,28 @@ func (r *userRepository) UsernameUpdate(ctx context.Context, user *response.User
 		_, err = tx.ExecContext(ctx, queryUsernameHistory, user.Username)
 		if err != nil {
 			return apperror.New(apperror.CodeDBError, "gagal insert username_history", err)
+		}
+		return nil
+	})
+}
+
+func (r *userRepository) EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error {
+	return dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
+		const (
+			queryUser         = `UPDATE users SET email = ? WHERE id = ?`
+			queryEmailHistory = `INSERT INTO email_history(email) VALUES(?)`
+		)
+		
+		// update email
+		_, err := tx.ExecContext(ctx, queryUser, newEmail, user.ID)
+		if err != nil {
+			return apperror.New(apperror.CodeDBError, "update email gagal", err)
+		}
+
+		// insert email
+		_, err = tx.ExecContext(ctx, queryEmailHistory, user.Email)
+		if err != nil {
+			return apperror.New(apperror.CodeDBError, "insert email_history gagal", err)
 		}
 		return nil
 	})

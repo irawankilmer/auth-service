@@ -99,6 +99,37 @@ func (h *UserHandler) UsernameUpdate(c *gin.Context) {
 	res.Created(nil, "username berhasil di update")
 }
 
+func (h *UserHandler) EmailUpdate(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.UserUpdateEmailRequest
+	ctx := c.Request.Context()
+
+	// cek user
+	user, err := h.userService.FindByID(ctx, c.Param("id"))
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// validasi
+	if !h.validate.ValigoJSON(c, &req) {
+		return
+	}
+
+	// update email
+	emailUpdate, err := h.userService.EmailUpdate(ctx, user, req.Email)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+	if !emailUpdate {
+		res.OK(nil, "tidak ada perubahan email", nil)
+		return
+	}
+
+	res.OK(nil, "email berhasil di update", nil)
+}
+
 func (h *UserHandler) Delete(c *gin.Context) {
 	res := response.NewResponder(c)
 	user, err := h.userService.FindByID(c.Request.Context(), c.Param("id"))

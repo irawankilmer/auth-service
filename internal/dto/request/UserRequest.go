@@ -28,3 +28,9 @@ func (u *UserUpdateUsernameRequest) Sanitize() map[string]any {
 type UserUpdateEmailRequest struct {
 	Email string `json:"email" binding:"required,email"`
 }
+
+func (u *UserUpdateEmailRequest) Sanitize() map[string]any {
+	return map[string]any{
+		"email": u.Email,
+	}
+}
