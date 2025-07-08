@@ -8,6 +8,7 @@ import (
 	"github.com/gogaruda/dbtx"
 	"github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/model"
+	"net/http"
 )
 
 type UserRepository interface {
@@ -20,6 +21,7 @@ type UserRepository interface {
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error
+	PasswordReset(ctx context.Context, user *response.UserDetailResponse, newPassword string) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -350,7 +352,7 @@ func (r *userRepository) EmailUpdate(ctx context.Context, user *response.UserDet
 			queryUser         = `UPDATE users SET email = ? WHERE id = ?`
 			queryEmailHistory = `INSERT INTO email_history(email) VALUES(?)`
 		)
-		
+
 		// update email
 		_, err := tx.ExecContext(ctx, queryUser, newEmail, user.ID)
 		if err != nil {
@@ -364,6 +366,16 @@ func (r *userRepository) EmailUpdate(ctx context.Context, user *response.UserDet
 		}
 		return nil
 	})
+}
+
+func (r *userRepository) PasswordReset(ctx context.Context, user *response.UserDetailResponse, newPassword string) error {
+	const query = `UPDATE users SET password = ? WHERE id = ?`
+	_, err := r.db.ExecContext(ctx, query, newPassword, user.ID)
+	if err != nil {
+		return apperror.New("[PASSWORD_RESET_VAILED]", "reset password gagal", err, http.StatusInternalServerError)
+	}
+	
+	return nil
 }
 
 func (r *userRepository) Delete(ctx context.Context, user *response.UserDetailResponse) error {

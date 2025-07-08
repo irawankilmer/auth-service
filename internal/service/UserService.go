@@ -3,11 +3,13 @@ package service
 import (
 	"context"
 	"github.com/gogaruda/apperror"
+	"github.com/irawankilmer/auth-service/internal/configs"
 	"github.com/irawankilmer/auth-service/internal/dto/request"
 	"github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/model"
 	"github.com/irawankilmer/auth-service/internal/repository"
 	"github.com/irawankilmer/auth-service/pkg/utils"
+	"net/http"
 )
 
 type UserService interface {
@@ -16,6 +18,7 @@ type UserService interface {
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
+	PasswordReset(ctx context.Context, user *response.UserDetailResponse) (string, error)
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -25,6 +28,7 @@ type userService struct {
 	usernameRepo repository.UsernameHistoryRepository
 	emailRepo    repository.EmailHistoryRepository
 	utilities    utils.Utility
+	config       *configs.AppConfig
 }
 
 func NewUserService(
@@ -32,9 +36,9 @@ func NewUserService(
 	rp repository.RoleRepository,
 	un repository.UsernameHistoryRepository,
 	er repository.EmailHistoryRepository,
-	ut utils.Utility) UserService {
+	ut utils.Utility, cfg *configs.AppConfig) UserService {
 	return &userService{
-		userRepo: ur, roleRepo: rp, usernameRepo: un, emailRepo: er, utilities: ut,
+		userRepo: ur, roleRepo: rp, usernameRepo: un, emailRepo: er, utilities: ut, config: cfg,
 	}
 }
 
@@ -184,6 +188,19 @@ func (s *userService) EmailUpdate(ctx context.Context, user *response.UserDetail
 	}
 
 	return true, nil
+}
+
+func (s *userService) PasswordReset(ctx context.Context, user *response.UserDetailResponse) (string, error) {
+	newPassword, err := s.utilities.HashGenerate(s.config.Password.Default)
+	if err != nil {
+		return "", apperror.New("[PASSWORD_GENERATE_INVALID]", "generate password gagal", err, http.StatusInternalServerError)
+	}
+
+	if err := s.userRepo.PasswordReset(ctx, user, newPassword); err != nil {
+		return "", err
+	}
+
+	return s.config.Password.Default, nil
 }
 
 func (s *userService) Delete(ctx context.Context, user *response.UserDetailResponse) error {

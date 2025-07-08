@@ -42,3 +42,8 @@ Content-Type: application/json
 {
   "email": "gagaklumayung@gmail.com"
 }
+
+###
+### Password reset
+PATCH http://localhost:8080/api/users/01JZMF6HZE7CFYKXG6F46XEA1H/reset-password
+Content-Type: application/json

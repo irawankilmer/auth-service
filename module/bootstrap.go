@@ -20,7 +20,7 @@ func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
 	roleRepo := repository.NewRoleRepository(db)
 	userRepo := repository.NewUserRepository(db)
 
-	userService := service.NewUserService(userRepo, roleRepo, usernameRepo, emailRepo, utilities)
+	userService := service.NewUserService(userRepo, roleRepo, usernameRepo, emailRepo, utilities, cfg)
 
 	return &BootstrapApp{
 		UserService: userService,

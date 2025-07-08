@@ -130,6 +130,27 @@ func (h *UserHandler) EmailUpdate(c *gin.Context) {
 	res.OK(nil, "email berhasil di update", nil)
 }
 
+func (h *UserHandler) PasswordReset(c *gin.Context) {
+	res := response.NewResponder(c)
+	ctx := c.Request.Context()
+
+	// cek user
+	user, err := h.userService.FindByID(ctx, c.Param("id"))
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// reset password
+	newPassword, err := h.userService.PasswordReset(ctx, user)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+	
+	res.OK(newPassword, "password berhasil di reset", nil)
+}
+
 func (h *UserHandler) Delete(c *gin.Context) {
 	res := response.NewResponder(c)
 	user, err := h.userService.FindByID(c.Request.Context(), c.Param("id"))
