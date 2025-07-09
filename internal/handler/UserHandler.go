@@ -66,39 +66,6 @@ func (h *UserHandler) FindByID(c *gin.Context) {
 	res.OK(user, "query ok", nil)
 }
 
-func (h *UserHandler) UsernameUpdate(c *gin.Context) {
-	res := response.NewResponder(c)
-	var req request.UserUpdateUsernameRequest
-	ctx := c.Request.Context()
-
-	// cek user
-	user, err := h.userService.FindByID(ctx, c.Param("id"))
-	if err != nil {
-		apperror.HandleHTTPError(c, err)
-		return
-	}
-
-	// validasi
-	if !h.validate.ValigoJSON(c, &req) {
-		return
-	}
-
-	// update username
-	update, err := h.userService.UsernameUpdate(ctx, user, req.Username)
-	if err != nil {
-		apperror.HandleHTTPError(c, err)
-		return
-	}
-
-	// jika tidak ada perubahan pada username
-	if !update {
-		res.OK(nil, "tidak ada perubahan username", nil)
-		return
-	}
-
-	res.Created(nil, "username berhasil di update")
-}
-
 func (h *UserHandler) EmailUpdate(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.UserUpdateEmailRequest
@@ -128,27 +95,6 @@ func (h *UserHandler) EmailUpdate(c *gin.Context) {
 	}
 
 	res.OK(nil, "email berhasil di update", nil)
-}
-
-func (h *UserHandler) PasswordReset(c *gin.Context) {
-	res := response.NewResponder(c)
-	ctx := c.Request.Context()
-
-	// cek user
-	user, err := h.userService.FindByID(ctx, c.Param("id"))
-	if err != nil {
-		apperror.HandleHTTPError(c, err)
-		return
-	}
-
-	// reset password
-	newPassword, err := h.userService.PasswordReset(ctx, user)
-	if err != nil {
-		apperror.HandleHTTPError(c, err)
-		return
-	}
-
-	res.OK(newPassword, "password berhasil di reset", nil)
 }
 
 func (h *UserHandler) RoleUpdate(c *gin.Context) {

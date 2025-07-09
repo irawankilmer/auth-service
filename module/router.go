@@ -36,9 +36,7 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	user.GET("", saa, userHandler.GetAll)
 	user.POST("", saa, userHandler.Create)
 	user.GET("/:id", saa, userHandler.FindByID)
-	user.PATCH("/:id/username", saa, userHandler.UsernameUpdate)
 	user.PATCH("/:id/email", saa, userHandler.EmailUpdate)
-	user.PATCH("/:id/reset-password", saa, userHandler.PasswordReset)
 	user.PATCH("/:id/roles-update", saa, userHandler.RoleUpdate)
 	user.DELETE("/:id", saa, userHandler.Delete)
 	// ===> end users routes

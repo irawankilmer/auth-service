@@ -8,7 +8,6 @@ import (
 	"github.com/gogaruda/dbtx"
 	"github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/model"
-	"net/http"
 )
 
 type UserRepository interface {
@@ -20,9 +19,7 @@ type UserRepository interface {
 	EmailChange(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
 	Create(ctx context.Context, user *model.UserModel) error
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
-	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error
-	PasswordReset(ctx context.Context, user *response.UserDetailResponse, newPassword string) error
 	RoleUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []model.RoleModel) error
 	UpdateEmailVerified(ctx context.Context, user *response.UserDetailResponse) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
@@ -342,26 +339,6 @@ func (r *userRepository) FindByID(ctx context.Context, userID string) (*response
 	return user, nil
 }
 
-func (r *userRepository) UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) error {
-	return dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
-		const (
-			queryUser            = `UPDATE users SET username = ? WHERE id = ?`
-			queryUsernameHistory = `INSERT INTO username_history(username) VALUES(?)`
-		)
-
-		_, err := tx.ExecContext(ctx, queryUser, newUsername, user.ID)
-		if err != nil {
-			return apperror.New(apperror.CodeDBError, "update username gagal", err)
-		}
-
-		_, err = tx.ExecContext(ctx, queryUsernameHistory, user.Username)
-		if err != nil {
-			return apperror.New(apperror.CodeDBError, "gagal insert username_history", err)
-		}
-		return nil
-	})
-}
-
 func (r *userRepository) EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error {
 	return dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
 		const (
@@ -382,16 +359,6 @@ func (r *userRepository) EmailUpdate(ctx context.Context, user *response.UserDet
 		}
 		return nil
 	})
-}
-
-func (r *userRepository) PasswordReset(ctx context.Context, user *response.UserDetailResponse, newPassword string) error {
-	const query = `UPDATE users SET password = ? WHERE id = ?`
-	_, err := r.db.ExecContext(ctx, query, newPassword, user.ID)
-	if err != nil {
-		return apperror.New("[PASSWORD_RESET_VAILED]", "reset password gagal", err, http.StatusInternalServerError)
-	}
-
-	return nil
 }
 
 func (r *userRepository) RoleUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []model.RoleModel) error {

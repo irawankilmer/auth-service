@@ -9,16 +9,13 @@ import (
 	"github.com/irawankilmer/auth-service/internal/model"
 	"github.com/irawankilmer/auth-service/internal/repository"
 	"github.com/irawankilmer/auth-service/pkg/utils"
-	"net/http"
 )
 
 type UserService interface {
 	GetAll(ctx context.Context, limit, offset int) ([]response.UserResponse, int, error)
 	Create(ctx context.Context, req request.UserCreateRequest) error
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
-	UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error)
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
-	PasswordReset(ctx context.Context, user *response.UserDetailResponse) (string, error)
 	RolesUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []string) (bool, error)
 	MarkEmailVerified(ctx context.Context, userID string) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
@@ -123,44 +120,6 @@ func (s *userService) FindByID(ctx context.Context, userID string) (*response.Us
 	return s.userRepo.FindByID(ctx, userID)
 }
 
-func (s *userService) UsernameUpdate(ctx context.Context, user *response.UserDetailResponse, newUsername string) (bool, error) {
-	// cek apakah username diubah?
-	currentUsername := ""
-	if user.Username != nil {
-		currentUsername = *user.Username
-	}
-
-	if currentUsername == newUsername {
-		return false, nil
-	}
-
-	// cek username dari table users
-	usernameChange, err := s.userRepo.UsernameChange(ctx, user, newUsername)
-	if err != nil {
-		return false, err
-	}
-
-	if usernameChange {
-		return false, apperror.New(apperror.CodeUsernameConflict, "username sudah terdaftar", err)
-	}
-
-	// cek username dari tabel username_history
-	usernameExists, err := s.usernameRepo.IsUsernameExists(ctx, newUsername)
-	if err != nil {
-		return false, err
-	}
-	if usernameExists {
-		return false, apperror.New(apperror.CodeUsernameConflict, "username sudah terdaftar", err)
-	}
-
-	// update username
-	if err := s.userRepo.UsernameUpdate(ctx, user, newUsername); err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
 func (s *userService) EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error) {
 	if user.Email == newEmail {
 		return false, nil
@@ -190,19 +149,6 @@ func (s *userService) EmailUpdate(ctx context.Context, user *response.UserDetail
 	}
 
 	return true, nil
-}
-
-func (s *userService) PasswordReset(ctx context.Context, user *response.UserDetailResponse) (string, error) {
-	newPassword, err := s.utilities.HashGenerate(s.config.Password.Default)
-	if err != nil {
-		return "", apperror.New("[PASSWORD_GENERATE_INVALID]", "generate password gagal", err, http.StatusInternalServerError)
-	}
-
-	if err := s.userRepo.PasswordReset(ctx, user, newPassword); err != nil {
-		return "", err
-	}
-
-	return s.config.Password.Default, nil
 }
 
 func (s *userService) RolesUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []string) (bool, error) {
