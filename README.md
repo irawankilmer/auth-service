@@ -79,4 +79,9 @@ go get github.com/gogaruda/valigo@v1.0.2
 ```bash
 go get github.com/golang-jwt/jwt/v5
 ```
+
+### 8. Email
+```bash
+go get gopkg.in/gomail.v2
+```
 ---

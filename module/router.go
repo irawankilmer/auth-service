@@ -14,18 +14,28 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	userHandler := handler.NewUserHandler(app.UserService, v)
 	rg.Use(app.Middleware.CORSMiddleware())
 
+	// role middleware
+	saa := app.Middleware.RoleMiddleware(middleware.MatchAny, "super admin", "admin")
+
+	// ===> auth routes
 	auth := rg.Group("/auth")
 	auth.POST("/login", authHandler.Login)
 
+	// auth middleware
+	auth.Use(app.Middleware.AuthMiddleware())
+	auth.POST("/logout", authHandler.Logout)
+	// ===> end auth routes
+
+	// ===> users routes
 	user := rg.Group("/users")
 	user.Use(app.Middleware.AuthMiddleware())
-	user.Use(app.Middleware.RoleMiddleware(middleware.MatchAny, "super admin", "admin"))
-	user.GET("", userHandler.GetAll)
-	user.POST("", userHandler.Create)
-	user.GET("/:id", userHandler.FindByID)
-	user.PATCH("/:id/username", userHandler.UsernameUpdate)
-	user.PATCH("/:id/email", userHandler.EmailUpdate)
-	user.PATCH("/:id/reset-password", userHandler.PasswordReset)
-	user.PATCH("/:id/roles-update", userHandler.RoleUpdate)
-	user.DELETE("/:id", userHandler.Delete)
+	user.GET("", saa, userHandler.GetAll)
+	user.POST("", saa, userHandler.Create)
+	user.GET("/:id", saa, userHandler.FindByID)
+	user.PATCH("/:id/username", saa, userHandler.UsernameUpdate)
+	user.PATCH("/:id/email", saa, userHandler.EmailUpdate)
+	user.PATCH("/:id/reset-password", saa, userHandler.PasswordReset)
+	user.PATCH("/:id/roles-update", saa, userHandler.RoleUpdate)
+	user.DELETE("/:id", saa, userHandler.Delete)
+	// ===> end users routes
 }

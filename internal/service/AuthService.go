@@ -13,16 +13,18 @@ import (
 
 type AuthService interface {
 	Login(ctx context.Context, req request.LoginRequest) (string, error)
+	Logout(ctx context.Context, userID string) error
 }
 
 type authService struct {
 	authRepo repository.AuthRepository
+	userRepo repository.UserRepository
 	utility  utils.Utility
 	cfg      *configs.AppConfig
 }
 
-func NewAuthService(ar repository.AuthRepository, ut utils.Utility, cfg *configs.AppConfig) AuthService {
-	return &authService{authRepo: ar, utility: ut, cfg: cfg}
+func NewAuthService(ar repository.AuthRepository, ut utils.Utility, cfg *configs.AppConfig, ur repository.UserRepository) AuthService {
+	return &authService{authRepo: ar, utility: ut, cfg: cfg, userRepo: ur}
 }
 
 func (s *authService) Login(ctx context.Context, req request.LoginRequest) (string, error) {
@@ -61,4 +63,25 @@ func (s *authService) Login(ctx context.Context, req request.LoginRequest) (stri
 	}
 
 	return token, nil
+}
+
+func (s *authService) Logout(ctx context.Context, userID string) error {
+	// cek user
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	// buat token_version baru
+	newTokenVersion, err := s.utility.UUIDGenerate()
+	if err != nil {
+		return err
+	}
+
+	// update token_version di database
+	if err := s.authRepo.UpdateTokenVersion(ctx, user.ID, newTokenVersion); err != nil {
+		return err
+	}
+
+	return nil
 }

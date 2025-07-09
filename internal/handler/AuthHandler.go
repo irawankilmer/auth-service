@@ -39,3 +39,22 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		Token: token,
 	}, "login berhasil", nil)
 }
+
+func (h *AuthHandler) Logout(c *gin.Context) {
+	res := response.NewResponder(c)
+
+	// ambil user_id dari context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		res.Unauthorized("user_id tidak ada di context")
+		return
+	}
+
+	// logout
+	if err := h.authService.Logout(c.Request.Context(), userID.(string)); err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	res.OK(nil, "logout berhasil", nil)
+}

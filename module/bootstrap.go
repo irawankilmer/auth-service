@@ -24,7 +24,7 @@ func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
 	roleRepo := repository.NewRoleRepository(db)
 	userRepo := repository.NewUserRepository(db)
 
-	authService := service.NewAuthService(authRepository, utilities, cfg)
+	authService := service.NewAuthService(authRepository, utilities, cfg, userRepo)
 	userService := service.NewUserService(userRepo, roleRepo, usernameRepo, emailRepo, utilities, cfg)
 
 	middlewares := middleware.NewMiddleware(cfg, userRepo)
