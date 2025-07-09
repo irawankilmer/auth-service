@@ -61,7 +61,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 func (h *AuthHandler) Register(c *gin.Context) {
 	res := response.NewResponder(c)
-	var req request.UserCreateRequest
+	var req request.RegisterRequest
 	req.Roles = []string{"tamu"}
 
 	// validasi

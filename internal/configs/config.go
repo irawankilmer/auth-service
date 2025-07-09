@@ -8,13 +8,12 @@ import (
 )
 
 type AppConfig struct {
-	DB       DBConfig
-	Mode     GinModeConfig
-	Server   ServerPortConfig
-	Password Password
-	Cors     CORSConfig
-	JWT      JWTConfig
-	Mail     EmailConfig
+	DB     DBConfig
+	Mode   GinModeConfig
+	Server ServerPortConfig
+	Cors   CORSConfig
+	JWT    JWTConfig
+	Mail   EmailConfig
 }
 
 func LoadConfig() *AppConfig {
@@ -32,9 +31,6 @@ func LoadConfig() *AppConfig {
 		},
 		Server: ServerPortConfig{
 			Port: getPortOrDefault("APP_PORT", "8080"),
-		},
-		Password: Password{
-			Default: getPasswordOrDefault("PASSWORD_DEFAULT", "123456Aa*"),
 		},
 		Cors: CORSConfig{
 			AllowOrigins:     strings.Split(os.Getenv("CORS_ALLOW_ORIGINS"), ","),

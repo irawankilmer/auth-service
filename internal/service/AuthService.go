@@ -15,7 +15,7 @@ import (
 type AuthService interface {
 	Login(ctx context.Context, req request.LoginRequest) (string, error)
 	Logout(ctx context.Context, userID string) error
-	Register(ctx context.Context, req request.UserCreateRequest) error
+	Register(ctx context.Context, req request.RegisterRequest) error
 }
 
 type authService struct {
@@ -104,7 +104,7 @@ func (s *authService) Logout(ctx context.Context, userID string) error {
 	return nil
 }
 
-func (s *authService) Register(ctx context.Context, req request.UserCreateRequest) error {
+func (s *authService) Register(ctx context.Context, req request.RegisterRequest) error {
 	// cek roles
 	roles, err := s.roleRepo.CheckRoles(ctx, req.Roles)
 	if err != nil {
@@ -166,7 +166,7 @@ func (s *authService) Register(ctx context.Context, req request.UserCreateReques
 		Profile: model.ProfileModel{
 			ID:       s.utility.ULIDGenerate(),
 			UserID:   userID,
-			FullName: req.Profile.FullName,
+			FullName: &req.Profile.FullName,
 			Address:  nil,
 			Gender:   nil,
 			Image:    nil,

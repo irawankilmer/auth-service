@@ -51,28 +51,12 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		return err
 	}
 
-	usernameExists, err := s.userRepo.CheckUsername(ctx, req.Username)
-	if err != nil {
-		return err
-	}
-	if usernameExists {
-		return apperror.New(apperror.CodeUsernameConflict, "username tidak dapat digunakan", err)
-	}
-
 	emailExists, err := s.userRepo.CheckEmail(ctx, req.Email)
 	if err != nil {
 		return err
 	}
 	if emailExists {
 		return apperror.New(apperror.CodeEmailConflict, "email tidak dapat digunakan", err)
-	}
-
-	usernameHistoryExists, err := s.usernameRepo.IsUsernameExists(ctx, req.Username)
-	if err != nil {
-		return err
-	}
-	if usernameHistoryExists {
-		return apperror.New(apperror.CodeUsernameConflict, "username sudah tidak dapat digunakan", err)
 	}
 
 	emailHistoryExists, err := s.emailRepo.IsEmailExists(ctx, req.Email)
@@ -83,17 +67,12 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		return apperror.New(apperror.CodeEmailConflict, "email sudah tidak dapat digunakan", err)
 	}
 
-	passHash, err := s.utilities.HashGenerate(req.Password)
-	if err != nil {
-		return apperror.New("[CODE_GENERATE_HASH_INVALID]", "gagal generate hash", err, 505)
-	}
-
 	userID := s.utilities.ULIDGenerate()
 	user := model.UserModel{
 		ID:             userID,
-		Username:       &req.Username,
+		Username:       nil,
 		Email:          req.Email,
-		Password:       &passHash,
+		Password:       nil,
 		TokenVersion:   nil,
 		EmailVerified:  false,
 		CreatedByAdmin: true,
@@ -101,7 +80,7 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		Profile: model.ProfileModel{
 			ID:       s.utilities.ULIDGenerate(),
 			UserID:   userID,
-			FullName: req.Profile.FullName,
+			FullName: nil,
 			Address:  nil,
 			Gender:   nil,
 			Image:    nil,

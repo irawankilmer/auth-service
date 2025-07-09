@@ -88,9 +88,8 @@ func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]respo
 	for rows.Next() {
 		var (
 			id, roleID, roleName, profileID string
-			username                        sql.NullString
+			username, fullName              sql.NullString
 			email                           string
-			fullName                        string
 		)
 
 		if err := rows.Scan(
@@ -109,12 +108,14 @@ func (r *userRepository) GetAll(ctx context.Context, limit, offset int) ([]respo
 				Email: email,
 				Roles: []response.RoleResponse{},
 				Profile: response.ProfileResponse{
-					ID:       profileID,
-					FullName: fullName,
+					ID: profileID,
 				},
 			}
 			if username.Valid {
 				user.Username = &username.String
+			}
+			if fullName.Valid {
+				user.Profile.FullName = fullName.String
 			}
 
 			userMap[id] = user

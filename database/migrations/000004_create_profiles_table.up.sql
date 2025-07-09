@@ -1,7 +1,7 @@
 CREATE TABLE profiles(
   id VARCHAR(26) NOT NULL PRIMARY KEY,
   user_id VARCHAR(26) NOT NULL UNIQUE,
-  full_name VARCHAR(125) NOT NULL,
+  full_name VARCHAR(125),
   address TEXT,
   gender ENUM("laki-laki", "perempuan"),
   image VARCHAR(255),

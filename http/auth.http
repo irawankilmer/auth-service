@@ -1,14 +1,14 @@
 ### logout
 POST http://localhost:8080/api/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImV4cCI6MTc1MjAzNTkwMiwiaWF0IjoxNzUyMDM1MDAyLCJyb2xlcyI6WyJ0YW11Il0sInRva2VuX3ZlcnNpb24iOiJmNzVkYzYwZC03NDc0LTQwZGEtYTBhZS02ODhiMDdiODhkYmUiLCJ1c2VyX2lkIjoiMDFKWlBQR0dRU1A0WUZBU1YwRUVQN0JOVDYifQ.6MOIi1cOMxz9ftNEb_RUTFmZcVC7WHtHLh-ZAgqxjTs
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUyMDQ5MDE1LCJpYXQiOjE3NTIwNDgxMTUsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiIxOWUwOGNlMC02OTAwLTQwY2QtODRlOS1hNjhlOTJhY2U1MGYiLCJ1c2VyX2lkIjoiMDFKWlEzOEc0VEs5RVMwS1dDWFgxMzJNRFgifQ.k3reFlEyFRSTVYmsk3yufC1NfCnR5OpKlnvL6DkJgTI
 
 ### Login
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "identifier": "irawankilmer@gmail.com",
-  "password": "irawankilmer@gmail.com"
+  "identifier": "ghania@gmail.com",
+  "password": "superadmin"
 }
 
 ### register
