@@ -10,8 +10,10 @@ type UserCreateRequest struct {
 
 func (u *UserCreateRequest) Sanitize() map[string]any {
 	return map[string]any{
-		"username": u.Username,
-		"email":    u.Email,
+		"username":  u.Username,
+		"email":     u.Email,
+		"full_name": u.Profile.FullName,
+		"roles":     u.Roles,
 	}
 }
 

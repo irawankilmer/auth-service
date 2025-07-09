@@ -58,3 +58,22 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	res.OK(nil, "logout berhasil", nil)
 }
+
+func (h *AuthHandler) Register(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.UserCreateRequest
+	req.Roles = []string{"tamu"}
+
+	// validasi
+	if !h.validates.ValigoJSON(c, &req) {
+		return
+	}
+
+	// registrasi
+	if err := h.authService.Register(c.Request.Context(), req); err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	res.OK(nil, "registrasi berhasil", nil)
+}

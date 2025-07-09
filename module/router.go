@@ -20,6 +20,7 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	// ===> auth routes
 	auth := rg.Group("/auth")
 	auth.POST("/login", authHandler.Login)
+	auth.POST("/register", authHandler.Register)
 
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())
