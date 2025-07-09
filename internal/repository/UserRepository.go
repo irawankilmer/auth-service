@@ -24,6 +24,7 @@ type UserRepository interface {
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) error
 	PasswordReset(ctx context.Context, user *response.UserDetailResponse, newPassword string) error
 	RoleUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []model.RoleModel) error
+	UpdateEmailVerified(ctx context.Context, user *response.UserDetailResponse) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -148,7 +149,7 @@ func (r *userRepository) FindUserByTokenVersion(ctx context.Context, userID stri
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return &user, nil
 }
 
@@ -426,6 +427,15 @@ func (r *userRepository) RoleUpdate(ctx context.Context, user *response.UserDeta
 
 		return nil
 	})
+}
+
+func (r *userRepository) UpdateEmailVerified(ctx context.Context, user *response.UserDetailResponse) error {
+	const query = `UPDATE users SET email_verified = true WHERE id = ?`
+	if _, err := r.db.ExecContext(ctx, query, user.ID); err != nil {
+		return apperror.New(apperror.CodeDBError, "query update email verified gagal", err)
+	}
+
+	return nil
 }
 
 func (r *userRepository) Delete(ctx context.Context, user *response.UserDetailResponse) error {

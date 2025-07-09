@@ -20,6 +20,7 @@ type UserService interface {
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
 	PasswordReset(ctx context.Context, user *response.UserDetailResponse) (string, error)
 	RolesUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []string) (bool, error)
+	MarkEmailVerified(ctx context.Context, userID string) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -222,6 +223,21 @@ func (s *userService) RolesUpdate(ctx context.Context, user *response.UserDetail
 	}
 
 	return true, nil
+}
+
+func (s *userService) MarkEmailVerified(ctx context.Context, userID string) error {
+	// cek user by ID
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	// update verifikasi email
+	if err := s.userRepo.UpdateEmailVerified(ctx, user); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *userService) Delete(ctx context.Context, user *response.UserDetailResponse) error {

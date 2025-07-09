@@ -12,6 +12,8 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 
 	authHandler := handler.NewAuthHandler(app.AuthService, v)
 	userHandler := handler.NewUserHandler(app.UserService, v)
+	emailVerifyHandler := handler.NewEmailVerificationHandler(app.EVService)
+
 	rg.Use(app.Middleware.CORSMiddleware())
 
 	// role middleware
@@ -21,6 +23,7 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	auth := rg.Group("/auth")
 	auth.POST("/login", authHandler.Login)
 	auth.POST("/register", authHandler.Register)
+	auth.GET("/verify-email", emailVerifyHandler.VerifyEmail)
 
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())

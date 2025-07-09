@@ -1,0 +1,2 @@
+### Email verify
+GET http://localhost:8080/api/auth/verify-email?token=0274dd49832f85824d420938f6e7db8c14c9c0f9353c48cb0e728607f4bcad96

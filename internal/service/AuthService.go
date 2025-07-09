@@ -26,14 +26,17 @@ type authService struct {
 	cfg          *configs.AppConfig
 	usernameRepo repository.UsernameHistoryRepository
 	emailRepo    repository.EmailHistoryRepository
+	evService    EmailVerificationService
 }
 
 func NewAuthService(ar repository.AuthRepository, ut utils.Utility, cfg *configs.AppConfig,
 	ur repository.UserRepository, rp repository.RoleRepository,
-	username repository.UsernameHistoryRepository, email repository.EmailHistoryRepository) AuthService {
+	username repository.UsernameHistoryRepository, email repository.EmailHistoryRepository,
+	ev EmailVerificationService,
+) AuthService {
 	return &authService{
 		authRepo: ar, utility: ut, cfg: cfg, userRepo: ur, roleRepo: rp,
-		usernameRepo: username, emailRepo: email,
+		usernameRepo: username, emailRepo: email, evService: ev,
 	}
 }
 
@@ -42,6 +45,11 @@ func (s *authService) Login(ctx context.Context, req request.LoginRequest) (stri
 	user, err := s.authRepo.IdentifierCheck(ctx, req.Identifier)
 	if err != nil {
 		return "", err
+	}
+
+	// cek verifikasi email
+	if !user.EmailVerified {
+		return "", apperror.New("[EMAIL_NOT_VERIFY]", "email belum di verifikasi", err, http.StatusUnauthorized)
 	}
 
 	// cek password
@@ -168,6 +176,11 @@ func (s *authService) Register(ctx context.Context, req request.UserCreateReques
 
 	// register
 	if err := s.userRepo.Create(ctx, &user); err != nil {
+		return err
+	}
+
+	// kirim verifikasi email
+	if err := s.evService.SendVerification(ctx, user); err != nil {
 		return err
 	}
 

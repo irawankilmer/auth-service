@@ -2,6 +2,7 @@ package configs
 
 import (
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -13,9 +14,11 @@ type AppConfig struct {
 	Password Password
 	Cors     CORSConfig
 	JWT      JWTConfig
+	Mail     EmailConfig
 }
 
 func LoadConfig() *AppConfig {
+	mailPort, _ := strconv.Atoi(os.Getenv("MAIL_PORT"))
 	return &AppConfig{
 		DB: DBConfig{
 			User: os.Getenv("DB_USER"),
@@ -42,6 +45,14 @@ func LoadConfig() *AppConfig {
 		JWT: JWTConfig{
 			Secret:         getSecretOrDefault("JWT_SECRET", "default-secret"),
 			AccessTokenTTL: 15 * time.Minute,
+		},
+		Mail: EmailConfig{
+			MailHost:        os.Getenv("MAIL_HOST"),
+			MailPort:        mailPort,
+			MailUsername:    os.Getenv("MAIL_USERNAME"),
+			MailPassword:    os.Getenv("MAIL_PASSWORD"),
+			MailFromAddress: os.Getenv("MAIL_FROM_ADDRESS"),
+			FrontVerifyUrl:  os.Getenv("FRONTEND_VERIFY_URL"),
 		},
 	}
 }
