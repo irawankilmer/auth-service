@@ -7,23 +7,24 @@ import (
 	"github.com/irawankilmer/auth-service/internal/middleware"
 )
 
-func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
+func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	v := valigo.NewValigo()
 
 	authHandler := handler.NewAuthHandler(app.AuthService, v)
 	userHandler := handler.NewUserHandler(app.UserService, v)
-	emailVerifyHandler := handler.NewEmailVerificationHandler(app.EVService)
+	emailVerifyHandler := handler.NewEmailVerificationHandler(app.EVService, v)
 
-	rg.Use(app.Middleware.CORSMiddleware())
+	r.Use(app.Middleware.CORSMiddleware())
 
 	// role middleware
 	saa := app.Middleware.RoleMiddleware(middleware.MatchAny, "super admin", "admin")
 
 	// ===> auth routes
-	auth := rg.Group("/auth")
+	auth := r.Group("/api/auth")
 	auth.POST("/login", authHandler.Login)
 	auth.POST("/register", authHandler.Register)
 	auth.GET("/verify-email", emailVerifyHandler.VerifyEmail)
+	auth.POST("/verify-register", emailVerifyHandler.VerifyRegister)
 
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())
@@ -31,7 +32,7 @@ func AuthRouteRegister(rg *gin.RouterGroup, app *BootstrapApp) {
 	// ===> end auth routes
 
 	// ===> users routes
-	user := rg.Group("/users")
+	user := r.Group("/users")
 	user.Use(app.Middleware.AuthMiddleware())
 	user.GET("", saa, userHandler.GetAll)
 	user.POST("", saa, userHandler.Create)

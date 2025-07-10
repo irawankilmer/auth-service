@@ -17,7 +17,6 @@ type UserService interface {
 	FindByID(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 	EmailUpdate(ctx context.Context, user *response.UserDetailResponse, newEmail string) (bool, error)
 	RolesUpdate(ctx context.Context, user *response.UserDetailResponse, newRoles []string) (bool, error)
-	MarkEmailVerified(ctx context.Context, userID string) error
 	Delete(ctx context.Context, user *response.UserDetailResponse) error
 }
 
@@ -28,16 +27,15 @@ type userService struct {
 	emailRepo    repository.EmailHistoryRepository
 	utilities    utils.Utility
 	config       *configs.AppConfig
+	evService    EmailVerificationService
 }
 
 func NewUserService(
-	ur repository.UserRepository,
-	rp repository.RoleRepository,
-	un repository.UsernameHistoryRepository,
-	er repository.EmailHistoryRepository,
-	ut utils.Utility, cfg *configs.AppConfig) UserService {
+	ur repository.UserRepository, rp repository.RoleRepository, un repository.UsernameHistoryRepository,
+	er repository.EmailHistoryRepository, ut utils.Utility, cfg *configs.AppConfig, ev EmailVerificationService,
+) UserService {
 	return &userService{
-		userRepo: ur, roleRepo: rp, usernameRepo: un, emailRepo: er, utilities: ut, config: cfg,
+		userRepo: ur, roleRepo: rp, usernameRepo: un, emailRepo: er, utilities: ut, config: cfg, evService: ev,
 	}
 }
 
@@ -46,11 +44,13 @@ func (s *userService) GetAll(ctx context.Context, limit, offset int) ([]response
 }
 
 func (s *userService) Create(ctx context.Context, req request.UserCreateRequest) error {
+	// cek roles
 	roles, err := s.roleRepo.CheckRoles(ctx, req.Roles)
 	if err != nil {
 		return err
 	}
 
+	// cek email dari table users
 	emailExists, err := s.userRepo.CheckEmail(ctx, req.Email)
 	if err != nil {
 		return err
@@ -59,6 +59,7 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		return apperror.New(apperror.CodeEmailConflict, "email tidak dapat digunakan", err)
 	}
 
+	// cek email dari table email_history
 	emailHistoryExists, err := s.emailRepo.IsEmailExists(ctx, req.Email)
 	if err != nil {
 		return err
@@ -67,6 +68,7 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		return apperror.New(apperror.CodeEmailConflict, "email sudah tidak dapat digunakan", err)
 	}
 
+	// create user
 	userID := s.utilities.ULIDGenerate()
 	user := model.UserModel{
 		ID:             userID,
@@ -89,6 +91,11 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 	}
 
 	if err := s.userRepo.Create(ctx, &user); err != nil {
+		return err
+	}
+
+	// kirim verifikasi email
+	if err := s.evService.SendVerification(ctx, user, "verify-register"); err != nil {
 		return err
 	}
 
@@ -148,21 +155,6 @@ func (s *userService) RolesUpdate(ctx context.Context, user *response.UserDetail
 	}
 
 	return true, nil
-}
-
-func (s *userService) MarkEmailVerified(ctx context.Context, userID string) error {
-	// cek user by ID
-	user, err := s.userRepo.FindByID(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	// update verifikasi email
-	if err := s.userRepo.UpdateEmailVerified(ctx, user); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (s *userService) Delete(ctx context.Context, user *response.UserDetailResponse) error {

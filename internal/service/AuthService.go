@@ -180,7 +180,7 @@ func (s *authService) Register(ctx context.Context, req request.RegisterRequest)
 	}
 
 	// kirim verifikasi email
-	if err := s.evService.SendVerification(ctx, user); err != nil {
+	if err := s.evService.SendVerification(ctx, user, "verify-email"); err != nil {
 		return err
 	}
 

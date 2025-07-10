@@ -84,4 +84,9 @@ go get github.com/golang-jwt/jwt/v5
 ```bash
 go get gopkg.in/gomail.v2
 ```
+
+### 9. cors
+```bash
+go get github.com/gin-contrib/cors
+```
 ---

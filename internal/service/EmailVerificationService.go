@@ -14,28 +14,28 @@ import (
 )
 
 type EmailVerificationService interface {
-	SendVerification(ctx context.Context, user model.UserModel) error
+	SendVerification(ctx context.Context, user model.UserModel, url string) error
 	VerifyToken(ctx context.Context, token string) error
 }
 
 type emailVerificationService struct {
-	evRepo      repository.EmailVerificationRepository
-	mail        *mailer.Mailer
-	utilities   utils.Utility
-	cfgMail     configs.EmailConfig
-	userService UserService
+	evRepo    repository.EmailVerificationRepository
+	mail      *mailer.Mailer
+	utilities utils.Utility
+	cfgMail   configs.EmailConfig
+	userRepo  repository.UserRepository
 }
 
 func NewEmailVerificationService(
 	ev repository.EmailVerificationRepository, m *mailer.Mailer, u utils.Utility,
-	cm configs.EmailConfig, us UserService,
+	cm configs.EmailConfig, ur repository.UserRepository,
 ) EmailVerificationService {
-	return &emailVerificationService{evRepo: ev, mail: m, utilities: u, cfgMail: cm, userService: us}
+	return &emailVerificationService{evRepo: ev, mail: m, utilities: u, cfgMail: cm, userRepo: ur}
 }
 
-func (s *emailVerificationService) SendVerification(ctx context.Context, user model.UserModel) error {
+func (s *emailVerificationService) SendVerification(ctx context.Context, user model.UserModel, urlTo string) error {
 	// generate token
-	token, err := s.mail.GenerateRandom(32)
+	token, err := s.mail.GenerateRandom(56)
 	if err != nil {
 		return err
 	}
@@ -45,17 +45,35 @@ func (s *emailVerificationService) SendVerification(ctx context.Context, user mo
 		ID:        s.utilities.ULIDGenerate(),
 		UserID:    user.ID,
 		Token:     token,
-		ExpiresAt: time.Now().UTC().Add(30 * time.Minute),
+		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
 	}
 	if err := s.evRepo.Create(ctx, ev); err != nil {
 		return err
 	}
 
 	// send mail
-	url := fmt.Sprintf("%s?token=%s", s.cfgMail.FrontVerifyUrl, token)
-	body := fmt.Sprintf("<p>Klik disini untuk verifikasi email: <a href='%s'>%s</a></p>", url, url)
+	url := fmt.Sprintf("%s/%s?token=%s", s.cfgMail.FrontVerifyUrl, urlTo, token)
+	body := fmt.Sprintf(`
+	<h2>Verifikasi Email Anda</h2>
+	<p>Halo,</p>
+	<p>Email Anda telah terdaftar. Untuk menyelesaikan proses pendaftaran, silakan verifikasi alamat email Anda dengan mengklik tombol di bawah ini:</p>
+	<p><a href='%s' style='
+		display: inline-block;
+		padding: 10px 20px;
+		background-color: #4CAF50;
+		color: white;
+		text-decoration: none;
+		border-radius: 5px;
+		font-weight: bold;
+	'>Verifikasi Email</a></p>
+	<p>Jika tombol di atas tidak bekerja, salin dan tempel URL berikut ke browser Anda:</p>
+	<p><code>%s</code></p>
+	<p>Link ini akan kadaluarsa dalam 24 jam.</p>
+	<p>Salam hangat,<br><strong>Tim Support %s</strong></p>
+`, url, url, "Sekolah Kita")
+
 	if err := s.mail.Send(user.Email, "Verifikasi Email", body); err != nil {
-		return apperror.New("[SEND_EMAIL_VERIFICATION_VAILED]", "verifikasi email gagal dikirim", err, 505)
+		return apperror.New("[SEND_EMAIL_VERIFICATION_FAILED]", "verifikasi email gagal dikirim", err, 505)
 	}
 
 	return nil
@@ -76,8 +94,14 @@ func (s *emailVerificationService) VerifyToken(ctx context.Context, token string
 		return apperror.New("[TOKEN_EXPIRED]", "token sudah kadaluwarsa", err, http.StatusUnauthorized)
 	}
 
-	// update verifikasi email users
-	if err := s.userService.MarkEmailVerified(ctx, ev.UserID); err != nil {
+	// cek user by ID
+	user, err := s.userRepo.FindByID(ctx, ev.UserID)
+	if err != nil {
+		return err
+	}
+
+	// update verifikasi email
+	if err := s.userRepo.UpdateEmailVerified(ctx, user); err != nil {
 		return err
 	}
 

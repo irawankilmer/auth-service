@@ -20,10 +20,9 @@ func main() {
 
 	gin.SetMode(cfg.Mode.Debug)
 	r := gin.Default()
-	api := r.Group("/api")
 
 	authApp := module.BootstrapInit(db, cfg)
-	module.AuthRouteRegister(api, authApp)
+	module.AuthRouteRegister(r, authApp)
 
 	if err := r.Run(":" + cfg.Server.Port); err != nil {
 		log.Fatal("Server gagal dijalankan...")

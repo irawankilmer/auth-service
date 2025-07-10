@@ -5,7 +5,6 @@ import (
 	"github.com/gogaruda/apperror"
 	"github.com/gogaruda/valigo"
 	"github.com/irawankilmer/auth-service/internal/dto/request"
-	dto "github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/service"
 	"github.com/irawankilmer/auth-service/pkg/response"
 )
@@ -20,7 +19,7 @@ func NewAuthHandler(as service.AuthService, v *valigo.Valigo) *AuthHandler {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	res := response.NewResponder(c)
+	// res := response.NewResponder(c)
 	var req request.LoginRequest
 
 	// validasi
@@ -35,9 +34,15 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	res.OK(dto.LoginResponse{
-		Token: token,
-	}, "login berhasil", nil)
+	c.SetCookie(
+		"access_token",            // name
+		token,                     // value
+		86400,                     // maxAge in seconds (24 jam)
+		"/",                       // path
+		"",                        // domain (kosong = current domain)
+		true,                      // secure
+		true,                      // httpOnly
+	)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
