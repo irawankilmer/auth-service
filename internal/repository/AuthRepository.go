@@ -113,6 +113,9 @@ func (r *authRepository) Me(ctx context.Context, userID string) (*response.UserD
 		if err := tx.QueryRowContext(ctx, query, userID).Scan(
 			&user.ID, &username, &user.Email, &user.Profile.ID, &fullName, &address, &gender, &image,
 		); err != nil {
+			if err == sql.ErrNoRows {
+				return apperror.New("[USER_NOT_FOUND]", "user tidak ditemukan", err, http.StatusUnauthorized)
+			}
 			return apperror.New(apperror.CodeDBError, "query users gagal", err)
 		}
 		if username.Valid {

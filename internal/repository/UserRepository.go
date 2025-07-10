@@ -8,6 +8,7 @@ import (
 	"github.com/gogaruda/dbtx"
 	"github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/model"
+	"net/http"
 )
 
 type UserRepository interface {
@@ -283,7 +284,7 @@ func (r *userRepository) FindByID(ctx context.Context, userID string) (*response
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, apperror.New(apperror.CodeUserNotFound, "user tidak ditemukan", err)
+			return nil, apperror.New("[USER_NOT_FOUND]", "user tidak ditemukan", err, http.StatusInternalServerError)
 		}
 		return nil, apperror.New(apperror.CodeDBError, "gagal mengambil data user", err)
 	}

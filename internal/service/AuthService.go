@@ -87,7 +87,7 @@ func (s *authService) Login(ctx context.Context, req request.LoginRequest) (stri
 
 func (s *authService) Logout(ctx context.Context, userID string) error {
 	// cek user
-	user, err := s.userRepo.FindByID(ctx, userID)
+	user, err := s.authRepo.Me(ctx, userID)
 	if err != nil {
 		return err
 	}

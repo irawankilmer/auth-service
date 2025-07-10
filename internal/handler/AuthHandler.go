@@ -40,7 +40,7 @@ func (h *AuthHandler) Me(c *gin.Context) {
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	// res := response.NewResponder(c)
+	res := response.NewResponder(c)
 	var req request.LoginRequest
 
 	// validasi
@@ -55,7 +55,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("access_token", token, 86400, "/", "", true, true)
+	c.SetCookie("access_token", token, 86400, "/", "", false, true)
+	res.OK(token, "login berhasil", nil)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
@@ -73,6 +74,17 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
+
+	// hapus cookie access_token
+	c.SetCookie(
+		"access_token",
+		"", // kosongkan value
+		-1, // expire langsung
+		"/",
+		"",    // domain
+		false, // secure: false dulu untuk localhost
+		true,  // httpOnly
+	)
 
 	res.OK(nil, "logout berhasil", nil)
 }
