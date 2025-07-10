@@ -12,10 +12,31 @@ import (
 type AuthHandler struct {
 	authService service.AuthService
 	validates   *valigo.Valigo
+	userService service.UserService
 }
 
-func NewAuthHandler(as service.AuthService, v *valigo.Valigo) *AuthHandler {
-	return &AuthHandler{authService: as, validates: v}
+func NewAuthHandler(as service.AuthService, v *valigo.Valigo, u service.UserService) *AuthHandler {
+	return &AuthHandler{authService: as, validates: v, userService: u}
+}
+
+func (h *AuthHandler) Me(c *gin.Context) {
+	res := response.NewResponder(c)
+
+	// cek user_id dari context
+	userID, exists := c.Get("user_id")
+	if !exists {
+		res.Unauthorized("user_id tidak ada di context")
+		return
+	}
+
+	// ambil data user/me
+	user, err := h.authService.Me(c.Request.Context(), userID.(string))
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	res.OK(user, "query ok", nil)
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -34,15 +55,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie(
-		"access_token",            // name
-		token,                     // value
-		86400,                     // maxAge in seconds (24 jam)
-		"/",                       // path
-		"",                        // domain (kosong = current domain)
-		true,                      // secure
-		true,                      // httpOnly
-	)
+	c.SetCookie("access_token", token, 86400, "/", "", true, true)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {

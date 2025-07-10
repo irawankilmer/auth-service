@@ -6,6 +6,7 @@ import (
 	"github.com/gogaruda/apperror"
 	"github.com/irawankilmer/auth-service/internal/configs"
 	"github.com/irawankilmer/auth-service/internal/dto/request"
+	"github.com/irawankilmer/auth-service/internal/dto/response"
 	"github.com/irawankilmer/auth-service/internal/model"
 	"github.com/irawankilmer/auth-service/internal/repository"
 	"github.com/irawankilmer/auth-service/pkg/utils"
@@ -16,6 +17,7 @@ type AuthService interface {
 	Login(ctx context.Context, req request.LoginRequest) (string, error)
 	Logout(ctx context.Context, userID string) error
 	Register(ctx context.Context, req request.RegisterRequest) error
+	Me(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 }
 
 type authService struct {
@@ -185,4 +187,8 @@ func (s *authService) Register(ctx context.Context, req request.RegisterRequest)
 	}
 
 	return nil
+}
+
+func (s *authService) Me(ctx context.Context, userID string) (*response.UserDetailResponse, error) {
+	return s.authRepo.Me(ctx, userID)
 }

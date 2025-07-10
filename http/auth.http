@@ -1,14 +1,19 @@
 ### logout
 POST http://localhost:8080/api/auth/logout
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUyMDQ5MDE1LCJpYXQiOjE3NTIwNDgxMTUsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiIxOWUwOGNlMC02OTAwLTQwY2QtODRlOS1hNjhlOTJhY2U1MGYiLCJ1c2VyX2lkIjoiMDFKWlEzOEc0VEs5RVMwS1dDWFgxMzJNRFgifQ.k3reFlEyFRSTVYmsk3yufC1NfCnR5OpKlnvL6DkJgTI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUyMTI2MjIwLCJpYXQiOjE3NTIxMjUzMjAsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiIyZGFlZDlkNi1hMmE1LTRkZGYtYTZkOS1jNjczNzU5OTI3MjYiLCJ1c2VyX2lkIjoiMDFKWlE2WFhFTVk3M1FYWE45SEFXTTQ4UDIifQ.-vAAtTtbNlPMWEYN9CMyFS0u0lDugXinU-3prYBAAkI
+
+###
+### Me
+GET http://localhost:8080/api/auth/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXhwIjoxNzUyMTI2MjIwLCJpYXQiOjE3NTIxMjUzMjAsInJvbGVzIjpbInN1cGVyIGFkbWluIl0sInRva2VuX3ZlcnNpb24iOiIyZGFlZDlkNi1hMmE1LTRkZGYtYTZkOS1jNjczNzU5OTI3MjYiLCJ1c2VyX2lkIjoiMDFKWlE2WFhFTVk3M1FYWE45SEFXTTQ4UDIifQ.-vAAtTtbNlPMWEYN9CMyFS0u0lDugXinU-3prYBAAkI
 
 ### Login
 POST http://localhost:8080/api/auth/login
 Content-Type: application/json
 
 {
-  "identifier": "supedmin",
-  "password": ""
+  "identifier": "superadmin",
+  "password": "superadmin"
 }
 
 ### register

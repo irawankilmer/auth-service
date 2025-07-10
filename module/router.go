@@ -10,7 +10,7 @@ import (
 func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	v := valigo.NewValigo()
 
-	authHandler := handler.NewAuthHandler(app.AuthService, v)
+	authHandler := handler.NewAuthHandler(app.AuthService, v, app.UserService)
 	userHandler := handler.NewUserHandler(app.UserService, v)
 	emailVerifyHandler := handler.NewEmailVerificationHandler(app.EVService, v)
 
@@ -28,6 +28,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())
+	auth.GET("/me", authHandler.Me)
 	auth.POST("/logout", authHandler.Logout)
 	// ===> end auth routes
 

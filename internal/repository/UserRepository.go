@@ -270,10 +270,10 @@ func (r *userRepository) FindByID(ctx context.Context, userID string) (*response
 
 	// Variabel scan
 	var (
-		id, email, profileID, fullName string
-		username, googleID             sql.NullString
-		emailVerified, createdByAdmin  bool
-		address, gender, image         sql.NullString
+		id, email, profileID          string
+		username, googleID, fullName  sql.NullString
+		emailVerified, createdByAdmin bool
+		address, gender, image        sql.NullString
 	)
 
 	// Ambil user + profile
@@ -296,8 +296,7 @@ func (r *userRepository) FindByID(ctx context.Context, userID string) (*response
 		CreatedByAdmin: createdByAdmin,
 		Roles:          []response.RoleResponse{},
 		Profile: response.ProfileDetailResponse{
-			ID:       profileID,
-			FullName: fullName,
+			ID: profileID,
 		},
 	}
 
@@ -307,6 +306,9 @@ func (r *userRepository) FindByID(ctx context.Context, userID string) (*response
 	}
 	if googleID.Valid {
 		user.GoogleID = &googleID.String
+	}
+	if fullName.Valid {
+		user.Profile.FullName = &fullName.String
 	}
 	if address.Valid {
 		user.Profile.Address = &address.String
