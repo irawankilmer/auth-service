@@ -7,6 +7,7 @@ import (
 	"github.com/irawankilmer/auth-service/internal/dto/request"
 	"github.com/irawankilmer/auth-service/internal/service"
 	"github.com/irawankilmer/auth-service/pkg/response"
+	"time"
 )
 
 type EmailVerificationHandler struct {
@@ -55,4 +56,32 @@ func (h *EmailVerificationHandler) VerifyRegister(c *gin.Context) {
 	}
 
 	res.OK(c.Query("email"), "verifikasi berhasil", nil)
+}
+
+func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.VerifyRequest
+	ctx := c.Request.Context()
+
+	// validasi
+	if !h.validates.ValigoJSON(c, &req) {
+		return
+	}
+
+	// cek token dan ambil data user
+	user, err := h.evService.CheckToken(ctx, req.Token)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// kirim verifikasi
+	token, err := h.evService.SendVerification(ctx, user, "verify-email", "register", 30*time.Minute)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	c.SetCookie("verify_email", token, 86400, "/", "", false, true)
+	res.OK(token, "verifikasi email sudah dirikim ulang", nil)
 }

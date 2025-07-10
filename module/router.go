@@ -25,6 +25,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	auth.POST("/register", authHandler.Register)
 	auth.POST("/verify-email", emailVerifyHandler.VerifyEmail)
 	auth.POST("/verify-register", emailVerifyHandler.VerifyRegister)
+	auth.POST("/verify-register-resend", emailVerifyHandler.VerifyRegisterResend)
 
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())

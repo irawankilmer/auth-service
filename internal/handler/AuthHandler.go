@@ -107,10 +107,12 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	}
 
 	// registrasi
-	if err := h.authService.Register(c.Request.Context(), req); err != nil {
+	token, err := h.authService.Register(c.Request.Context(), req)
+	if err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
 
-	res.OK(nil, "registrasi berhasil", nil)
+	c.SetCookie("verify_email", token, 86400, "/", "", false, true)
+	res.OK(token, "registrasi berhasil", nil)
 }

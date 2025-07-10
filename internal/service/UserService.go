@@ -9,6 +9,7 @@ import (
 	"github.com/irawankilmer/auth-service/internal/model"
 	"github.com/irawankilmer/auth-service/internal/repository"
 	"github.com/irawankilmer/auth-service/pkg/utils"
+	"time"
 )
 
 type UserService interface {
@@ -94,8 +95,8 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		return err
 	}
 
-	// kirim verifikasi email
-	if err := s.evService.SendVerification(ctx, user, "verify-register"); err != nil {
+	// kirim verifikasi email, dan atur waktu kadaluarsa token selama 7 hari
+	if _, err := s.evService.SendVerification(ctx, &user, "verify-register", "register", 168*time.Hour); err != nil {
 		return err
 	}
 

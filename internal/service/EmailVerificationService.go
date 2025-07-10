@@ -14,8 +14,9 @@ import (
 )
 
 type EmailVerificationService interface {
-	SendVerification(ctx context.Context, user model.UserModel, url string) error
+	SendVerification(ctx context.Context, user *model.UserModel, urlTo, actionType string, duration time.Duration) (string, error)
 	VerifyToken(ctx context.Context, token string) error
+	CheckToken(ctx context.Context, token string) (*model.UserModel, error)
 }
 
 type emailVerificationService struct {
@@ -33,22 +34,23 @@ func NewEmailVerificationService(
 	return &emailVerificationService{evRepo: ev, mail: m, utilities: u, cfgMail: cm, userRepo: ur}
 }
 
-func (s *emailVerificationService) SendVerification(ctx context.Context, user model.UserModel, urlTo string) error {
+func (s *emailVerificationService) SendVerification(ctx context.Context, user *model.UserModel, urlTo, actionType string, duration time.Duration) (string, error) {
 	// generate token
-	token, err := s.mail.GenerateRandom(56)
+	token, err := s.mail.GenerateRandom(64)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// create verification
 	ev := &model.EmailVerificationModel{
-		ID:        s.utilities.ULIDGenerate(),
-		UserID:    user.ID,
-		Token:     token,
-		ExpiresAt: time.Now().UTC().Add(24 * time.Hour),
+		ID:         s.utilities.ULIDGenerate(),
+		UserID:     user.ID,
+		Token:      token,
+		ExpiresAt:  time.Now().UTC().Add(duration),
+		ActionType: actionType,
 	}
 	if err := s.evRepo.Create(ctx, ev); err != nil {
-		return err
+		return "", err
 	}
 
 	// send mail
@@ -73,10 +75,10 @@ func (s *emailVerificationService) SendVerification(ctx context.Context, user mo
 `, url, url, "Sekolah Kita")
 
 	if err := s.mail.Send(user.Email, "Verifikasi Email", body); err != nil {
-		return apperror.New("[SEND_EMAIL_VERIFICATION_FAILED]", "verifikasi email gagal dikirim", err, 505)
+		return "", apperror.New("[SEND_EMAIL_VERIFICATION_FAILED]", "verifikasi email gagal dikirim", err, 505)
 	}
 
-	return nil
+	return token, nil
 }
 
 func (s *emailVerificationService) VerifyToken(ctx context.Context, token string) error {
@@ -107,4 +109,36 @@ func (s *emailVerificationService) VerifyToken(ctx context.Context, token string
 
 	// update is_used
 	return s.evRepo.MarkAsUsed(ctx, ev.ID)
+}
+
+func (s *emailVerificationService) CheckToken(ctx context.Context, token string) (*model.UserModel, error) {
+	// cek token
+	ev, err := s.evRepo.FindByToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+	if ev.IsUsed {
+		return nil, apperror.New("[TOKEN_IS_USED]", "token sudah digunakan", err, http.StatusUnauthorized)
+	}
+	if time.Now().After(ev.ExpiresAt) {
+		return nil, apperror.New("[TOKEN_EXPIRED]", "token sudah kadaluwarsa", err, http.StatusUnauthorized)
+	}
+
+	// cek user by ID
+	user, err := s.userRepo.FindByID(ctx, ev.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	var userModel model.UserModel
+	userModel = model.UserModel{
+		ID:    user.ID,
+		Email: user.Email,
+	}
+
+	// update is_used
+	if err := s.evRepo.MarkAsUsed(ctx, ev.ID); err != nil {
+		return nil, err
+	}
+	return &userModel, nil
 }

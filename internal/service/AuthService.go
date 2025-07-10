@@ -11,12 +11,13 @@ import (
 	"github.com/irawankilmer/auth-service/internal/repository"
 	"github.com/irawankilmer/auth-service/pkg/utils"
 	"net/http"
+	"time"
 )
 
 type AuthService interface {
 	Login(ctx context.Context, req request.LoginRequest) (string, error)
 	Logout(ctx context.Context, userID string) error
-	Register(ctx context.Context, req request.RegisterRequest) error
+	Register(ctx context.Context, req request.RegisterRequest) (string, error)
 	Me(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 }
 
@@ -106,53 +107,53 @@ func (s *authService) Logout(ctx context.Context, userID string) error {
 	return nil
 }
 
-func (s *authService) Register(ctx context.Context, req request.RegisterRequest) error {
+func (s *authService) Register(ctx context.Context, req request.RegisterRequest) (string, error) {
 	// cek roles
 	roles, err := s.roleRepo.CheckRoles(ctx, req.Roles)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// cek username dari table users
 	usernameExists, err := s.userRepo.CheckUsername(ctx, req.Username)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if usernameExists {
-		return apperror.New(apperror.CodeUsernameConflict, "username tidak dapat digunakan", err)
+		return "", apperror.New(apperror.CodeUsernameConflict, "username tidak dapat digunakan", err)
 	}
 
 	// cek email dari table users
 	emailExists, err := s.userRepo.CheckEmail(ctx, req.Email)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if emailExists {
-		return apperror.New(apperror.CodeEmailConflict, "email tidak dapat digunakan", err)
+		return "", apperror.New(apperror.CodeEmailConflict, "email tidak dapat digunakan", err)
 	}
 
 	// cek username history
 	usernameHistoryExists, err := s.usernameRepo.IsUsernameExists(ctx, req.Username)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if usernameHistoryExists {
-		return apperror.New(apperror.CodeUsernameConflict, "username sudah tidak dapat digunakan", err)
+		return "", apperror.New(apperror.CodeUsernameConflict, "username sudah tidak dapat digunakan", err)
 	}
 
 	// cek email history
 	emailHistoryExists, err := s.emailRepo.IsEmailExists(ctx, req.Email)
 	if err != nil {
-		return err
+		return "", err
 	}
 	if emailHistoryExists {
-		return apperror.New(apperror.CodeEmailConflict, "email sudah tidak dapat digunakan", err)
+		return "", apperror.New(apperror.CodeEmailConflict, "email sudah tidak dapat digunakan", err)
 	}
 
 	// generate password
 	passHash, err := s.utility.HashGenerate(req.Password)
 	if err != nil {
-		return apperror.New("[CODE_GENERATE_HASH_INVALID]", "gagal generate hash", err, 505)
+		return "", apperror.New("[CODE_GENERATE_HASH_INVALID]", "gagal generate hash", err, 505)
 	}
 
 	userID := s.utility.ULIDGenerate()
@@ -178,15 +179,16 @@ func (s *authService) Register(ctx context.Context, req request.RegisterRequest)
 
 	// register
 	if err := s.userRepo.Create(ctx, &user); err != nil {
-		return err
+		return "", err
 	}
 
 	// kirim verifikasi email
-	if err := s.evService.SendVerification(ctx, user, "verify-email"); err != nil {
-		return err
+	token, err := s.evService.SendVerification(ctx, &user, "verify-email", "register", 30*time.Minute)
+	if err != nil {
+		return "", err
 	}
 
-	return nil
+	return token, nil
 }
 
 func (s *authService) Me(ctx context.Context, userID string) (*response.UserDetailResponse, error) {
