@@ -1,5 +1,11 @@
 ### Email verify
-GET http://localhost:8080/api/auth/verify-email?token=0274dd49832f85824d420938f6e7db8c14c9c0f9353c48cb0e728607f4bcad96
+POST http://localhost:8080/api/auth/verify-email
+Content-Type: application/json
+
+{
+  "token": "d00fd57e5b842bace70b5f8575d1399d2f168e5a9bc159ef5bb810fcb09e1082a1b3f27bd37a41cbee1e591f9a532ddc21972ef56034f4dd"
+}
+
 
 ### Verify Register
 POST http://localhost:8080/api/auth/verify-register?token=a356a935359f4d8d8f6a272a9f5541f3fa5d20bb89c7bc16927a7f42cdd1f6c29539768520c2c6a31af32eb4ecf7c0f7ef5148e3c1b857ff&email=irawankilmer@gmail.com

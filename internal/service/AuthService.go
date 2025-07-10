@@ -168,7 +168,7 @@ func (s *authService) Register(ctx context.Context, req request.RegisterRequest)
 		Profile: model.ProfileModel{
 			ID:       s.utility.ULIDGenerate(),
 			UserID:   userID,
-			FullName: &req.Profile.FullName,
+			FullName: &req.FullName,
 			Address:  nil,
 			Gender:   nil,
 			Image:    nil,

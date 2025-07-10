@@ -98,6 +98,13 @@ func (h *AuthHandler) Register(c *gin.Context) {
 	if !h.validates.ValigoJSON(c, &req) {
 		return
 	}
+	errMap := make(map[string]string)
+	if req.Password != req.ConfirmPassword {
+		errMap["confirm_password"] = "konfirmasi password tidak cocok"
+	}
+	if !h.validates.ValigoBusiness(c, &req, errMap) {
+		return
+	}
 
 	// registrasi
 	if err := h.authService.Register(c.Request.Context(), req); err != nil {

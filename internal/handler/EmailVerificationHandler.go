@@ -20,16 +20,15 @@ func NewEmailVerificationHandler(ev service.EmailVerificationService, v *valigo.
 
 func (h *EmailVerificationHandler) VerifyEmail(c *gin.Context) {
 	res := response.NewResponder(c)
+	var req request.VerifyRequest
 
-	// periksa token
-	token := c.Query("token")
-	if token == "" {
-		res.BadRequest(nil, "token tidak boleh kosong")
+	// validasi
+	if !h.validates.ValigoJSON(c, &req) {
 		return
 	}
 
 	// verifikasi token
-	if err := h.evService.VerifyToken(c.Request.Context(), token); err != nil {
+	if err := h.evService.VerifyToken(c.Request.Context(), req.Token); err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}

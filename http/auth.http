@@ -21,10 +21,9 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
+  "full_name": "Irawan Kilmer",
   "username": "irawankilmer",
   "email": "irawankilmer@gmail.com",
   "password": "irawankilmer@gmail.com",
-  "profile": {
-    "full_name": "Irawan Kilmer sejati"
-  }
+  "confirm_password": "irawankilmer@gmail.com"
 }
