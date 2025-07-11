@@ -3,7 +3,7 @@ POST http://localhost:8080/api/auth/verify-register-resend
 Content-Type: application/json
 
 {
-  "token": "523337635d0c7766073c87c6d0714bc0b40493f420214366ee8871d22520b61321fa340b805cc65cc051fe63e03f9702fad1d66e34329cfbbef06dac4bc4bff2"
+  "token": "cc2dad459094e7996b3c7aebbe09f0a682866ffea3b312fa82b8158b582f9a4eec30c0af4ba5af5728402578d88c0705fb007bb33d79a9520738228e78caf740"
 }
 
 
@@ -12,7 +12,7 @@ POST http://localhost:8080/api/auth/verify-email
 Content-Type: application/json
 
 {
-  "token": "d00fd57e5b842bace70b5f8575d1399d2f168e5a9bc159ef5bb810fcb09e1082a1b3f27bd37a41cbee1e591f9a532ddc21972ef56034f4dd"
+  "token": "cc2dad459094e7996b3c7aebbe09f0a682866ffea3b312fa82b8158b582f9a4eec30c0af4ba5af5728402578d88c0705fb007bb33d79a9520738228e78caf740"
 }
 
 

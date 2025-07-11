@@ -60,28 +60,27 @@ func (h *EmailVerificationHandler) VerifyRegister(c *gin.Context) {
 
 func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
 	res := response.NewResponder(c)
-	var req request.VerifyRequest
-	ctx := c.Request.Context()
-
-	// validasi
-	if !h.validates.ValigoJSON(c, &req) {
+	token, err := c.Cookie("verify_email")
+	if err != nil {
+		res.Unauthorized("Kesalahan saat mengambil token verifikasi")
 		return
 	}
+	ctx := c.Request.Context()
 
 	// cek token dan ambil data user
-	user, err := h.evService.CheckToken(ctx, req.Token)
+	user, err := h.evService.CheckToken(ctx, token)
 	if err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
 
 	// kirim verifikasi
-	token, err := h.evService.SendVerification(ctx, user, "verify-email", "register", 30*time.Minute)
+	newToken, err := h.evService.SendVerification(ctx, user, "verify-email", "register", 30*time.Minute)
 	if err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
 
-	c.SetCookie("verify_email", token, 86400, "/", "", false, true)
-	res.OK(token, "verifikasi email sudah dirikim ulang", nil)
+	c.SetCookie("verify_email", newToken, 86400, "/", "", false, true)
+	res.OK(newToken, "verifikasi email sudah dirikim ulang", nil)
 }

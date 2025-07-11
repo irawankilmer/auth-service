@@ -21,9 +21,9 @@ POST http://localhost:8080/api/auth/register
 Content-Type: application/json
 
 {
-  "full_name": "kokoko",
-  "username": "kokoko",
-  "email": "kokoko@gmail.com",
-  "password": "kokoko@gmail.com",
-  "confirm_password": "kokoko@gmail.com"
+  "full_name": "xixixixixixixi",
+  "username": "xixixixixixixi",
+  "email": "xixixixixixixi@gmail.com",
+  "password": "xixixixixixixi@gmail.com",
+  "confirm_password": "xixixixixixixi@gmail.com"
 }
