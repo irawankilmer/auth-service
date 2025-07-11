@@ -1,14 +1,16 @@
 package request
 
 type UserCreateRequest struct {
-	Email string   `json:"email" binding:"required,email"`
-	Roles []string `json:"roles" binding:"required"`
+	FullName string   `json:"full_name" binding:"required"`
+	Email    string   `json:"email" binding:"required,email"`
+	Roles    []string `json:"roles" binding:"required"`
 }
 
 func (u *UserCreateRequest) Sanitize() map[string]any {
 	return map[string]any{
-		"email": u.Email,
-		"roles": u.Roles,
+		"full_name": u.FullName,
+		"email":     u.Email,
+		"roles":     u.Roles,
 	}
 }
 

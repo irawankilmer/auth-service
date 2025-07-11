@@ -83,7 +83,7 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		Profile: model.ProfileModel{
 			ID:       s.utilities.ULIDGenerate(),
 			UserID:   userID,
-			FullName: nil,
+			FullName: &req.FullName,
 			Address:  nil,
 			Gender:   nil,
 			Image:    nil,
@@ -96,7 +96,7 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 	}
 
 	// kirim verifikasi email, dan atur waktu kadaluarsa token selama 7 hari
-	if _, err := s.evService.SendVerification(ctx, &user, "verify-register", "register", 168*time.Hour); err != nil {
+	if _, err := s.evService.SendVerification(ctx, &user, "verify-register-by-admin", "register", 168*time.Hour); err != nil {
 		return err
 	}
 

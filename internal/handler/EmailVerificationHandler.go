@@ -60,13 +60,14 @@ func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("verify_email", newToken, 86400, "/", "", false, true)
+	c.SetCookie("verify_email", newToken, 1800, "/", "", false, true)
 	res.OK(newToken, "verifikasi email sudah dirikim ulang", nil)
 }
 
 func (h *EmailVerificationHandler) VerifyRegisterByAdmin(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.VerifyRegisterByAdminRequest
+	ctx := c.Request.Context()
 
 	// validasi
 	if !h.validates.ValigoJSON(c, &req) {
@@ -82,5 +83,46 @@ func (h *EmailVerificationHandler) VerifyRegisterByAdmin(c *gin.Context) {
 		return
 	}
 
+	// cek token
+	ev, err := h.evService.FindByToken(ctx, req.Token)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// update data registrasi
+	if err := h.evService.UpdateRegisterByAdmin(ctx, &req, ev); err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
 	res.OK(c.Query("email"), "verifikasi berhasil", nil)
+}
+
+func (h *EmailVerificationHandler) VerifyRegisterByAdminResend(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.VerifyRegisterByAdminResendRequest
+	ctx := c.Request.Context()
+
+	// validasi
+	if !h.validates.ValigoJSON(c, &req) {
+		return
+	}
+
+	// cek token dan ambil data user
+	user, err := h.evService.CheckToken(ctx, req.Token)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// kirim verifikasi
+	newToken, err := h.evService.SendVerification(ctx, user, "verify-register-by-admin", "register", 30*time.Minute)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	c.SetCookie("verify_email", newToken, 1800, "/", "", false, true)
+	res.OK(newToken, "verifikasi email sudah dirikim ulang", nil)
 }

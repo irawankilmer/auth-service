@@ -12,6 +12,7 @@ type EmailVerificationRepository interface {
 	Create(ctx context.Context, ev *model.EmailVerificationModel) error
 	FindByToken(ctx context.Context, token string) (*model.EmailVerificationModel, error)
 	MarkAsUsed(ctx context.Context, evID string) error
+	UpdateRegisterByAdmin(ctx context.Context, username, password, userID string) error
 }
 
 type emailVerificationRepository struct {
@@ -49,6 +50,15 @@ func (r *emailVerificationRepository) MarkAsUsed(ctx context.Context, evID strin
 	const query = `UPDATE email_verifications SET is_used = true WHERE id = ?`
 	if _, err := r.db.ExecContext(ctx, query, evID); err != nil {
 		return apperror.New(apperror.CodeDBError, "query update is_used gagal", err)
+	}
+
+	return nil
+}
+
+func (r *emailVerificationRepository) UpdateRegisterByAdmin(ctx context.Context, username, password, userID string) error {
+	const query = `UPDATE users SET username = ?, password = ?, email_verified = true WHERE id = ?`
+	if _, err := r.db.ExecContext(ctx, query, username, password, userID); err != nil {
+		return apperror.New(apperror.CodeDBError, "query users gagal", err)
 	}
 
 	return nil

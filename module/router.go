@@ -26,6 +26,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	auth.POST("/verify-email", emailVerifyHandler.VerifyEmail)
 	auth.POST("/verify-register-resend", emailVerifyHandler.VerifyRegisterResend)
 	auth.POST("/verify-register-by-admin", emailVerifyHandler.VerifyRegisterByAdmin)
+	auth.POST("/verify-register-by-admin-resend", emailVerifyHandler.VerifyRegisterByAdminResend)
 
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())
@@ -34,7 +35,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	// ===> end auth routes
 
 	// ===> users routes
-	user := r.Group("/users")
+	user := r.Group("/api/users")
 	user.Use(app.Middleware.AuthMiddleware())
 	user.GET("", saa, userHandler.GetAll)
 	user.POST("", saa, userHandler.Create)

@@ -28,7 +28,7 @@ func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
 	userRepo := repository.NewUserRepository(db)
 	evRepo := repository.NewEmailVerificationRepository(db)
 
-	evService := service.NewEmailVerificationService(evRepo, mail, utilities, cfg.Mail, userRepo)
+	evService := service.NewEmailVerificationService(evRepo, mail, utilities, cfg.Mail, userRepo, usernameRepo)
 	userService := service.NewUserService(userRepo, roleRepo, usernameRepo, emailRepo, utilities, cfg, evService)
 	authService := service.NewAuthService(authRepo, utilities, cfg, userRepo, roleRepo, usernameRepo, emailRepo, evService)
 
