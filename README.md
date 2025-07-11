@@ -62,7 +62,7 @@ go get github.com/google/uuid
 
 ### 5. Error Handling System
 ```bash
-go get github.com/gogaruda/apperror@v1.2.2
+go get github.com/gogaruda/apperror@v1.3.0
 ```
 
 ### 6. GIN

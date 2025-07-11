@@ -37,27 +37,6 @@ func (h *EmailVerificationHandler) VerifyEmail(c *gin.Context) {
 	res.OK(nil, "Email berhasil di verifikas", nil)
 }
 
-func (h *EmailVerificationHandler) VerifyRegister(c *gin.Context) {
-	res := response.NewResponder(c)
-	var req request.VerifyRegisterRequest
-
-	// validasi
-	if !h.validates.ValigoJSON(c, &req) {
-		return
-	}
-
-	// validasi kecocokan password
-	errMap := map[string]string{}
-	if req.Password != req.PasswordConfirm {
-		errMap["password_confirm"] = "konfirmasi password salah"
-	}
-	if !h.validates.ValigoBusiness(c, &req, errMap) {
-		return
-	}
-
-	res.OK(c.Query("email"), "verifikasi berhasil", nil)
-}
-
 func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
 	res := response.NewResponder(c)
 	token, err := c.Cookie("verify_email")
@@ -83,4 +62,25 @@ func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
 
 	c.SetCookie("verify_email", newToken, 86400, "/", "", false, true)
 	res.OK(newToken, "verifikasi email sudah dirikim ulang", nil)
+}
+
+func (h *EmailVerificationHandler) VerifyRegisterByAdmin(c *gin.Context) {
+	res := response.NewResponder(c)
+	var req request.VerifyRegisterByAdminRequest
+
+	// validasi
+	if !h.validates.ValigoJSON(c, &req) {
+		return
+	}
+
+	// validasi kecocokan password
+	errMap := map[string]string{}
+	if req.Password != req.PasswordConfirm {
+		errMap["password_confirm"] = "konfirmasi password salah"
+	}
+	if !h.validates.ValigoBusiness(c, &req, errMap) {
+		return
+	}
+
+	res.OK(c.Query("email"), "verifikasi berhasil", nil)
 }

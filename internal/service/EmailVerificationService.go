@@ -93,7 +93,7 @@ func (s *emailVerificationService) VerifyToken(ctx context.Context, token string
 	}
 
 	if time.Now().After(ev.ExpiresAt) {
-		return apperror.New("[TOKEN_EXPIRED]", "token sudah kadaluwarsa", err, http.StatusUnauthorized)
+		return apperror.New("[TOKEN_EXPIRED]", "token sudah kadaluwarsa", err, http.StatusUnauthorized).WithResponseStatus("expired")
 	}
 
 	// cek user by ID
@@ -118,10 +118,10 @@ func (s *emailVerificationService) CheckToken(ctx context.Context, token string)
 		return nil, err
 	}
 	if ev.IsUsed {
-		return nil, apperror.New("[TOKEN_IS_USED]", "token sudah digunakan", err, http.StatusUnauthorized)
+		return nil, apperror.New("[TOKEN_IS_USED]", "user sudah aktif", err, http.StatusUnauthorized)
 	}
 	if time.Now().After(ev.ExpiresAt) {
-		return nil, apperror.New("[TOKEN_EXPIRED]", "token sudah kadaluwarsa", err, http.StatusUnauthorized)
+		return nil, apperror.New("[TOKEN_EXPIRED]", "token sudah kadaluwarsa", err, http.StatusUnauthorized).WithResponseStatus("expired")
 	}
 
 	// cek user by ID

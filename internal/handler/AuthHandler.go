@@ -62,27 +62,25 @@ func (h *AuthHandler) Login(c *gin.Context) {
 func (h *AuthHandler) Logout(c *gin.Context) {
 	res := response.NewResponder(c)
 
-	// ambil user_id dari context
+	// Ambil user_id dari context
 	userID, exists := c.Get("user_id")
 	if !exists {
-		res.Unauthorized("user_id tidak ada di context")
+		res.Unauthorized("user_id tidak ditemukan di context")
 		return
 	}
 
-	// logout
 	if err := h.authService.Logout(c.Request.Context(), userID.(string)); err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
 
-	// hapus cookie access_token
 	c.SetCookie(
 		"access_token",
-		"", // kosongkan value
-		-1, // expire langsung
-		"/",
+		"",    // kosongkan nilai
+		-1,    // expire langsung
+		"/",   // path seluruh domain
 		"",    // domain
-		false, // secure: false dulu untuk localhost
+		false, // secure: false utk localhost
 		true,  // httpOnly
 	)
 

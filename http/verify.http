@@ -1,10 +1,6 @@
 ### Verify Register Resend
 POST http://localhost:8080/api/auth/verify-register-resend
-Content-Type: application/json
 
-{
-  "token": "cc2dad459094e7996b3c7aebbe09f0a682866ffea3b312fa82b8158b582f9a4eec30c0af4ba5af5728402578d88c0705fb007bb33d79a9520738228e78caf740"
-}
 
 
 ### Email verify

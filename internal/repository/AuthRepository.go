@@ -88,7 +88,7 @@ func (r *authRepository) Me(ctx context.Context, userID string) (*response.UserD
 	const (
 		query = `
 							SELECT 
-								u.id, u.username, u.email,
+								u.id, u.username, u.email, u.email_verified,
 								p.id, p.full_name, p.address, p.gender, p.image
 							FROM users u 
 							INNER JOIN profiles p ON u.id = p.user_id
@@ -111,7 +111,7 @@ func (r *authRepository) Me(ctx context.Context, userID string) (*response.UserD
 		// query user dan profiles
 		var username, fullName, address, gender, image sql.NullString
 		if err := tx.QueryRowContext(ctx, query, userID).Scan(
-			&user.ID, &username, &user.Email, &user.Profile.ID, &fullName, &address, &gender, &image,
+			&user.ID, &username, &user.Email, &user.EmailVerified, &user.Profile.ID, &fullName, &address, &gender, &image,
 		); err != nil {
 			if err == sql.ErrNoRows {
 				return apperror.New("[USER_NOT_FOUND]", "user tidak ditemukan", err, http.StatusUnauthorized)
