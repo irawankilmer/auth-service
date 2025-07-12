@@ -1,0 +1,4 @@
+### Refresh token
+POST http://localhost:8080/api/refresh-token
+Content-Type: application/x-www-form-urlencoded
+Cookie: refresh_token=IMw7cGNmxGX9jfKK7AwOY5Qqt8kw6EYg6_V4jv4UR-zqkxKgb1Vj3FDTZ30J7A5YpG2As4NsjOIYvDrzSUgFww==

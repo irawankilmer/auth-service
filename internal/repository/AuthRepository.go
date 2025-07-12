@@ -29,13 +29,13 @@ func (r *authRepository) IdentifierCheck(ctx context.Context, identifier string)
 	var roles []model.RoleModel
 	err := dbtx.WithTxContext(ctx, r.db, func(ctx context.Context, tx *sql.Tx) error {
 		const (
-			queryUsers = `SELECT id, password, email_verified FROM users WHERE username = ? OR email = ? LIMIT 1`
+			queryUsers = `SELECT id, password, email_verified, token_version FROM users WHERE username = ? OR email = ? LIMIT 1`
 			queryROles = `SELECT r.id, r.name FROM roles r JOIN user_roles ur ON ur.role_id = r.id WHERE ur.user_id = ?`
 		)
 
 		// query user
 		err := tx.QueryRowContext(ctx, queryUsers, identifier, identifier).
-			Scan(&user.ID, &user.Password, &user.EmailVerified)
+			Scan(&user.ID, &user.Password, &user.EmailVerified, &user.TokenVersion)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return apperror.New("[IDENTIFIER_NOT_FOUND]", "username atau email salah", err, http.StatusUnauthorized)

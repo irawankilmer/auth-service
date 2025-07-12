@@ -15,8 +15,9 @@ import (
 )
 
 type AuthService interface {
-	Login(ctx context.Context, req request.LoginRequest) (string, error)
-	Logout(ctx context.Context, userID string) error
+	Login(ctx context.Context, req request.LoginRequest, userAgent, ipAddress string) (*response.LoginResponse, error)
+	Logout(ctx context.Context, refreshToken string) error
+	LogoutAllDevices(ctx context.Context, userID string) error
 	Register(ctx context.Context, req request.RegisterRequest) (string, error)
 	Me(ctx context.Context, userID string) (*response.UserDetailResponse, error)
 }
@@ -30,40 +31,35 @@ type authService struct {
 	usernameRepo repository.UsernameHistoryRepository
 	emailRepo    repository.EmailHistoryRepository
 	evService    EmailVerificationService
+	usRepo       repository.UserSessionRepository
 }
 
 func NewAuthService(ar repository.AuthRepository, ut utils.Utility, cfg *configs.AppConfig,
 	ur repository.UserRepository, rp repository.RoleRepository,
 	username repository.UsernameHistoryRepository, email repository.EmailHistoryRepository,
-	ev EmailVerificationService,
+	ev EmailVerificationService, usR repository.UserSessionRepository,
 ) AuthService {
 	return &authService{
 		authRepo: ar, utility: ut, cfg: cfg, userRepo: ur, roleRepo: rp,
-		usernameRepo: username, emailRepo: email, evService: ev,
+		usernameRepo: username, emailRepo: email, evService: ev, usRepo: usR,
 	}
 }
 
-func (s *authService) Login(ctx context.Context, req request.LoginRequest) (string, error) {
+func (s *authService) Login(ctx context.Context, req request.LoginRequest, userAgent, ipAddress string) (*response.LoginResponse, error) {
 	// Cek identifikasi
 	user, err := s.authRepo.IdentifierCheck(ctx, req.Identifier)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	// cek verifikasi email
 	if !user.EmailVerified {
-		return "", apperror.New("[EMAIL_NOT_VERIFY]", "email belum di verifikasi", err, http.StatusUnauthorized)
+		return nil, apperror.New("[EMAIL_NOT_VERIFY]", "email belum di verifikasi", err, http.StatusUnauthorized)
 	}
 
 	// cek password
 	if !s.utility.HashCompare(*user.Password, req.Password) {
-		return "", apperror.New("[PASSWORD_INVALID]", "password salah", errors.New("Password salah"), http.StatusUnauthorized)
-	}
-
-	// buat uuid
-	newTokenVersion, err := s.utility.UUIDGenerate()
-	if err != nil {
-		return "", apperror.New(apperror.CodeInternalError, "token version gagal dibuat", err)
+		return nil, apperror.New("[PASSWORD_INVALID]", "password salah", errors.New("Password salah"), http.StatusUnauthorized)
 	}
 
 	// ambil roles user
@@ -73,34 +69,65 @@ func (s *authService) Login(ctx context.Context, req request.LoginRequest) (stri
 	}
 
 	// Generate token
-	token, err := s.utility.JWTGenerate(user.ID, newTokenVersion, user.EmailVerified, roles, s.cfg)
+	token, err := s.utility.JWTGenerate(user.ID, user.TokenVersion, user.EmailVerified, roles, s.cfg)
 	if err != nil {
-		return "", apperror.New(apperror.CodeInternalError, "Generate token gagal", err)
+		return nil, apperror.New(apperror.CodeInternalError, "Generate token gagal", err)
 	}
 
-	// Update token_version
-	if err := s.authRepo.UpdateTokenVersion(ctx, user.ID, newTokenVersion); err != nil {
-		return "", err
+	// generate refresh token
+	refreshToken, err := s.utility.RefreshTokenGenerate()
+	if err != nil {
+		return nil, err
 	}
 
-	return token, nil
+	// insert refresh token
+	if err := s.usRepo.Create(ctx, &model.UserSession{
+		ID:               s.utility.ULIDGenerate(),
+		UserID:           user.ID,
+		RefreshTokenHash: s.utility.HashToken(refreshToken),
+		DeviceID:         "coba saja",
+		IPAddress:        ipAddress,
+		UserAgent:        userAgent,
+		ExpiresAt:        time.Now().Add(7 * 24 * time.Hour),
+	}); err != nil {
+		return nil, err
+	}
+
+	return &response.LoginResponse{
+		AccessToken:  token,
+		RefreshToken: refreshToken,
+	}, nil
 }
 
-func (s *authService) Logout(ctx context.Context, userID string) error {
-	// cek user
-	user, err := s.authRepo.Me(ctx, userID)
+func (s *authService) Logout(ctx context.Context, refreshToken string) error {
+	hashed := s.utility.HashToken(refreshToken)
+
+	session, err := s.usRepo.FindRefreshToken(ctx, hashed)
 	if err != nil {
-		return err
+		// alasan return nil (dianggap berhasil logout), agar status token tidak bocor, begitu :)
+		return nil
+	}
+	if session.Revoked {
+		return nil
 	}
 
-	// buat token_version baru
+	return s.usRepo.Revoked(ctx, session.ID)
+}
+
+func (s *authService) LogoutAllDevices(ctx context.Context, userID string) error {
+	// generate token version baru
 	newTokenVersion, err := s.utility.UUIDGenerate()
 	if err != nil {
+		return apperror.New(apperror.CodeInternalError, "generate new token version gagal", err)
+	}
+
+	// update token version
+	if err := s.authRepo.UpdateTokenVersion(ctx, userID, newTokenVersion); err != nil {
 		return err
 	}
 
-	// update token_version di database
-	if err := s.authRepo.UpdateTokenVersion(ctx, user.ID, newTokenVersion); err != nil {
+	//revoke semua session
+	if err := s.usRepo.RevokeAllSessionByUserID(ctx, userID); err != nil {
 		return err
 	}
 
@@ -156,13 +183,21 @@ func (s *authService) Register(ctx context.Context, req request.RegisterRequest)
 		return "", apperror.New("[CODE_GENERATE_HASH_INVALID]", "gagal generate hash", err, 505)
 	}
 
+	// generate token version
+	tokenVersion, err := s.utility.UUIDGenerate()
+	if err != nil {
+		if err != nil {
+			return "", apperror.New("[UUID Generate VAILED]", "gagal membuat UUID", err, http.StatusInternalServerError)
+		}
+	}
+
 	userID := s.utility.ULIDGenerate()
 	user := model.UserModel{
 		ID:             userID,
 		Username:       &req.Username,
 		Email:          req.Email,
 		Password:       &passHash,
-		TokenVersion:   nil,
+		TokenVersion:   tokenVersion,
 		EmailVerified:  false,
 		CreatedByAdmin: false,
 		GoogleID:       nil,

@@ -9,6 +9,7 @@ import (
 	"github.com/irawankilmer/auth-service/internal/model"
 	"github.com/irawankilmer/auth-service/internal/repository"
 	"github.com/irawankilmer/auth-service/pkg/utils"
+	"net/http"
 	"time"
 )
 
@@ -69,6 +70,12 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		return apperror.New(apperror.CodeEmailConflict, "email sudah tidak dapat digunakan", err)
 	}
 
+	// generate token version
+	tokenVersion, err := s.utilities.UUIDGenerate()
+	if err != nil {
+		return apperror.New("[UUID_GENERATED_VALIED]", "gagal generate UUID", err, http.StatusInternalServerError)
+	}
+
 	// create user
 	userID := s.utilities.ULIDGenerate()
 	user := model.UserModel{
@@ -76,7 +83,7 @@ func (s *userService) Create(ctx context.Context, req request.UserCreateRequest)
 		Username:       nil,
 		Email:          req.Email,
 		Password:       nil,
-		TokenVersion:   nil,
+		TokenVersion:   tokenVersion,
 		EmailVerified:  false,
 		CreatedByAdmin: true,
 		GoogleID:       nil,

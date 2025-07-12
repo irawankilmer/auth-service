@@ -8,6 +8,8 @@ type Utility interface {
 	HashCompare(hash, password string) bool
 	UUIDGenerate() (string, error)
 	JWTGenerate(userID, tokenVersion string, isVerified bool, roles []string, cfg *configs.AppConfig) (string, error)
+	RefreshTokenGenerate() (string, error)
+	HashToken(token string) string
 }
 
 type utility struct {

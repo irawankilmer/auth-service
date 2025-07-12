@@ -49,42 +49,62 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// login
-	token, err := h.authService.Login(c.Request.Context(), req)
+	token, err := h.authService.Login(c.Request.Context(), req, c.Request.UserAgent(), c.ClientIP())
 	if err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
 
-	c.SetCookie("access_token", token, 86400, "/", "", false, true)
+	c.SetCookie("access_token", token.AccessToken, 900, "/", "", false, true)
+	c.SetCookie("refresh_token", token.RefreshToken, 7*24*3600, "/", "", false, true)
 	res.OK(token, "login berhasil", nil)
 }
 
 func (h *AuthHandler) Logout(c *gin.Context) {
 	res := response.NewResponder(c)
 
-	// Ambil user_id dari context
+	// cek refresh token
+	refreshToken, err := c.Cookie("refresh_token")
+	if err != nil || refreshToken == "" {
+		res.Unauthorized("refresh token tidak ditemukan di cookie")
+		return
+	}
+
+	// logout
+	err = h.authService.Logout(c.Request.Context(), refreshToken)
+	if err != nil {
+		apperror.HandleHTTPError(c, err)
+		return
+	}
+
+	// hapus cookie
+	c.SetCookie("access_token", "", -1, "/", "", true, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
+
+	res.OK(nil, "logout berhasil", nil)
+}
+
+func (h *AuthHandler) LogoutAll(c *gin.Context) {
+	res := response.NewResponder(c)
+
+	// ambil user_id dari middleware JWT
 	userID, exists := c.Get("user_id")
 	if !exists {
 		res.Unauthorized("user_id tidak ditemukan di context")
 		return
 	}
 
-	if err := h.authService.Logout(c.Request.Context(), userID.(string)); err != nil {
+	// logout all devices
+	if err := h.authService.LogoutAllDevices(c.Request.Context(), userID.(string)); err != nil {
 		apperror.HandleHTTPError(c, err)
 		return
 	}
 
-	c.SetCookie(
-		"access_token",
-		"",    // kosongkan nilai
-		-1,    // expire langsung
-		"/",   // path seluruh domain
-		"",    // domain
-		false, // secure: false utk localhost
-		true,  // httpOnly
-	)
+	// hapus cookie
+	c.SetCookie("access_token", "", -1, "/", "", true, true)
+	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
 
-	res.OK(nil, "logout berhasil", nil)
+	res.OK(nil, "berhasil logout dari semua perangkat", nil)
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
@@ -111,6 +131,6 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	c.SetCookie("verify_email", token, 86400, "/", "", false, true)
+	c.SetCookie("verify_email", token, 1800, "/", "", false, true)
 	res.OK(token, "registrasi berhasil", nil)
 }

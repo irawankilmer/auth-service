@@ -13,14 +13,11 @@ func (m *middleware) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		res := response.NewResponder(c)
 
-		// Ambil token dari Cookie atau Authorization Header
+		// Ambil token dari Cookie atau Header
 		var tokenStr string
-
-		// 1. Coba dari Cookie
 		if cookieToken, err := c.Cookie("access_token"); err == nil && cookieToken != "" {
 			tokenStr = cookieToken
 		} else {
-			// 2. Coba dari Authorization header
 			authHeader := c.GetHeader("Authorization")
 			if authHeader == "" {
 				res.Unauthorized("token tidak ditemukan di cookie maupun header")
@@ -32,7 +29,6 @@ func (m *middleware) AuthMiddleware() gin.HandlerFunc {
 				res.Unauthorized("format Authorization harus: Bearer {token}")
 				return
 			}
-
 			tokenStr = parts[1]
 		}
 
@@ -60,57 +56,29 @@ func (m *middleware) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Ambil user_id
-		userID, ok := claims["user_id"].(string)
-		if !ok || userID == "" {
-			res.Unauthorized("token tidak memiliki user_id yang valid")
-			return
-		}
+		// Ambil isi claim
+		userID, _ := claims["user_id"].(string)
+		tokenVersion, _ := claims["token_version"].(string)
+		emailVerified, _ := claims["email_verified"].(bool)
 
-		// Ambil token_version
-		tokenVersion, ok := claims["token_version"].(string)
-		if !ok || tokenVersion == "" {
-			res.Unauthorized("token_version tidak valid")
-			return
-		}
-
-		// Ambil email_verified
-		emailVerified, ok := claims["email_verified"].(bool)
-		if !ok {
-			res.Unauthorized("field email_verified tidak valid")
-			return
-		}
-
-		// Ambil roles
-		rolesClaim, ok := claims["roles"].([]interface{})
-		if !ok {
-			res.Unauthorized("format roles dalam token tidak valid")
-			return
-		}
-
-		roles := make([]string, 0, len(rolesClaim))
-		for _, r := range rolesClaim {
-			roleStr, ok := r.(string)
-			if !ok {
-				res.Unauthorized("setiap role harus berupa string")
-				return
+		// Ambil roles (array of string)
+		roles := []string{}
+		if rawRoles, ok := claims["roles"].([]interface{}); ok {
+			for _, r := range rawRoles {
+				if str, ok := r.(string); ok {
+					roles = append(roles, str)
+				}
 			}
-			roles = append(roles, roleStr)
 		}
 
-		// Cek token_version ke DB
-		user, err := m.userRepo.FindUserByTokenVersion(c.Request.Context(), userID)
-		if err != nil {
-			res.Unauthorized("user tidak ditemukan")
-			return
-		}
-		if user.TokenVersion == nil || *user.TokenVersion != tokenVersion {
-			res.Unauthorized("token sudah tidak berlaku, silakan login ulang")
+		if userID == "" || tokenVersion == "" {
+			res.Unauthorized("token tidak memiliki user_id atau token_version yang valid")
 			return
 		}
 
-		// Simpan ke context
+		// Simpan data token ke context
 		c.Set("user_id", userID)
+		c.Set("token_version", tokenVersion)
 		c.Set("email_verified", emailVerified)
 		c.Set("roles", roles)
 

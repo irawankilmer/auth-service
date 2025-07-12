@@ -36,7 +36,7 @@ func (mail *Mailer) Send(to, subject, body string) error {
 func (mail *Mailer) GenerateRandom(n int) (string, error) {
 	bytes := make([]byte, n)
 	if _, err := rand.Read(bytes); err != nil {
-		return "", apperror.New(apperror.CodeInternalError, "gagal membuat roken verifikasi email", err)
+		return "", apperror.New(apperror.CodeInternalError, "gagal membuat token verifikasi email", err)
 	}
 
 	return hex.EncodeToString(bytes), nil

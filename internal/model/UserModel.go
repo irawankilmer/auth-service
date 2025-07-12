@@ -5,7 +5,7 @@ type UserModel struct {
 	Username       *string
 	Email          string
 	Password       *string
-	TokenVersion   *string
+	TokenVersion   string
 	EmailVerified  bool
 	CreatedByAdmin bool
 	GoogleID       *string

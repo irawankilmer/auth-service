@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/gogaruda/apperror"
 	"github.com/gogaruda/dbtx"
 	"github.com/irawankilmer/auth-service/pkg/utils"
+	"net/http"
 	"time"
 )
 
@@ -24,6 +26,12 @@ func User(db *sql.DB, u utils.Utility) error {
 			return fmt.Errorf("query role gagal: %w", err)
 		}
 
+		// generate token version
+		tokenVersion, err := u.UUIDGenerate()
+		if err != nil {
+			return apperror.New("[UUID_GENERATE_VALIED]", "generate UUID gagal", err, http.StatusInternalServerError)
+		}
+
 		// Create user
 		hashPass, err := u.HashGenerate("superadmin")
 		if err != nil {
@@ -31,8 +39,8 @@ func User(db *sql.DB, u utils.Utility) error {
 		}
 		userID := u.ULIDGenerate()
 		_, err = tx.ExecContext(ctx,
-			`INSERT INTO users(id, username, email, password, email_verified, created_by_admin) VALUES(?, ?, ?, ?, ?, ?)`,
-			userID, "superadmin", "superadmin@gmail.com", hashPass, true, false,
+			`INSERT INTO users(id, username, email, password, email_verified, created_by_admin, token_version) VALUES(?, ?, ?, ?, ?, ?, ?)`,
+			userID, "superadmin", "superadmin@gmail.com", hashPass, true, false, tokenVersion,
 		)
 		if err != nil {
 			return fmt.Errorf("query users gagal: %w", err)

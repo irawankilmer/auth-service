@@ -13,6 +13,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	authHandler := handler.NewAuthHandler(app.AuthService, v, app.UserService)
 	userHandler := handler.NewUserHandler(app.UserService, v)
 	emailVerifyHandler := handler.NewEmailVerificationHandler(app.EVService, v)
+	uSessionHandler := handler.NewUserSessionHandler(app.USService)
 
 	r.Use(app.Middleware.CORSMiddleware())
 
@@ -22,6 +23,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	// ===> auth routes
 	auth := r.Group("/api/auth")
 	auth.POST("/login", authHandler.Login)
+	auth.POST("/logout", authHandler.Logout)
 	auth.POST("/register", authHandler.Register)
 	auth.POST("/verify-email", emailVerifyHandler.VerifyEmail)
 	auth.POST("/verify-register-resend", emailVerifyHandler.VerifyRegisterResend)
@@ -31,8 +33,11 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	// auth middleware
 	auth.Use(app.Middleware.AuthMiddleware())
 	auth.GET("/me", authHandler.Me)
-	auth.POST("/logout", authHandler.Logout)
 	// ===> end auth routes
+
+	// refresh token
+	refresh := r.Group("/api/refresh-token")
+	refresh.POST("", uSessionHandler.RefreshToken)
 
 	// ===> users routes
 	user := r.Group("/api/users")

@@ -15,6 +15,7 @@ type BootstrapApp struct {
 	Middleware  middleware.Middleware
 	UserService service.UserService
 	EVService   service.EmailVerificationService
+	USService   service.UserSessionService
 }
 
 func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
@@ -27,10 +28,12 @@ func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
 	roleRepo := repository.NewRoleRepository(db)
 	userRepo := repository.NewUserRepository(db)
 	evRepo := repository.NewEmailVerificationRepository(db)
+	usRepo := repository.NewUserSessionRepository(db)
 
 	evService := service.NewEmailVerificationService(evRepo, mail, utilities, cfg.Mail, userRepo, usernameRepo)
 	userService := service.NewUserService(userRepo, roleRepo, usernameRepo, emailRepo, utilities, cfg, evService)
-	authService := service.NewAuthService(authRepo, utilities, cfg, userRepo, roleRepo, usernameRepo, emailRepo, evService)
+	authService := service.NewAuthService(authRepo, utilities, cfg, userRepo, roleRepo, usernameRepo, emailRepo, evService, usRepo)
+	usService := service.NewUserSessionService(usRepo, utilities, cfg)
 
 	middlewares := middleware.NewMiddleware(cfg, userRepo)
 	return &BootstrapApp{
@@ -38,5 +41,6 @@ func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {
 		Middleware:  middlewares,
 		UserService: userService,
 		EVService:   evService,
+		USService:   usService,
 	}
 }

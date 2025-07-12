@@ -7,7 +7,9 @@ System Authentikasi sederhana:
     - Cors
     - Auth
     - Role
-5. a
+    - Verify
+5. Verify Email
+6. Refresh Token
 
 ---
 ## Migrasi dan seeder
@@ -33,60 +35,37 @@ go run ./cmd/seed/main.go
 
 ---
 ## Library Thank's
-### 1. golang migration v4
 ```bash
+# 1. golang migration v4
 go get github.com/golang-migrate/migrate/v4
 go get github.com/golang-migrate/migrate/v4/database/mysql
 go get github.com/golang-migrate/migrate/v4/source/file
-```
 
-### 2. env
-```bash
+# 2. env
 go get github.com/joho/godotenv
-```
 
-### 3. (ACID)
-```bash
+# 3. (ACID)
 go get github.com/gogaruda/dbtx@v1.0.1
-```
 
-### 4. ID Generator
-#### - ULID
-```bash
+# 4. ID Generator
 go get github.com/oklog/ulid/v2
-```
-#### - UUID
-```bash
 go get github.com/google/uuid
-```
 
-### 5. Error Handling System
-```bash
+# 5. Error Handling System
 go get github.com/gogaruda/apperror@v1.3.0
-```
 
-### 6. GIN
-```bash
+# 6. GIN
 go get -u github.com/gin-gonic/gin
-```
 
-### 7. Validasi
-```bash
+# 7. Validasi
 go get github.com/gogaruda/valigo@v1.0.2
-```
 
-### 8. JWT
-```bash
+# 8. JWT
 go get github.com/golang-jwt/jwt/v5
-```
 
-### 8. Email
-```bash
+# 9. Email
 go get gopkg.in/gomail.v2
-```
 
-### 9. cors
-```bash
+# 10. cors
 go get github.com/gin-contrib/cors
 ```
----
