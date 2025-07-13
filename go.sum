@@ -49,8 +49,6 @@ github.com/go-sql-driver/mysql v1.5.0 h1:ozyZYNQW3x3HtqT1jira07DN2PArx2v7/mN66gG
 github.com/go-sql-driver/mysql v1.5.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/goccy/go-json v0.10.5 h1:Fq85nIqj+gXn/S5ahsiTlK3TmC85qgirsdTP/+DeaC4=
 github.com/goccy/go-json v0.10.5/go.mod h1:oq7eo15ShAhp70Anwd5lgX2pLfOS3QCiwU/PULtXL6M=
-github.com/gogaruda/apperror v1.2.2 h1:2qyJfFQpc9k8FV6pCKgqjM/QlE+JQFUJkMmEggtIJsU=
-github.com/gogaruda/apperror v1.2.2/go.mod h1:LDIWPoecO971Uw1hZblg4NEBCCetqFzvJyqaFEMTWl0=
 github.com/gogaruda/apperror v1.3.0 h1:cF5NZfwJ0mWAl4gB67lIO40bJGpfdW3JMtCHBctQVLw=
 github.com/gogaruda/apperror v1.3.0/go.mod h1:LDIWPoecO971Uw1hZblg4NEBCCetqFzvJyqaFEMTWl0=
 github.com/gogaruda/dbtx v1.0.1 h1:EEtJ9CHyf6zxbZ4rqaLTfDPGKUpBlFUKSvRA+HyRYd8=

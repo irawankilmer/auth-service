@@ -24,6 +24,7 @@ func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	auth := r.Group("/api/auth")
 	auth.POST("/login", authHandler.Login)
 	auth.POST("/logout", authHandler.Logout)
+	auth.POST("/logout-all-devices", authHandler.LogoutAll)
 	auth.POST("/register", authHandler.Register)
 	auth.POST("/verify-email", emailVerifyHandler.VerifyEmail)
 	auth.POST("/verify-register-resend", emailVerifyHandler.VerifyRegisterResend)
