@@ -4,19 +4,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gogaruda/apperror"
 	"github.com/gogaruda/valigo"
+	"github.com/irawankilmer/auth-service/internal/configs"
 	"github.com/irawankilmer/auth-service/internal/dto/request"
 	"github.com/irawankilmer/auth-service/internal/service"
 	"github.com/irawankilmer/auth-service/pkg/response"
+	"net/http"
 )
 
 type AuthHandler struct {
 	authService service.AuthService
 	validates   *valigo.Valigo
 	userService service.UserService
+	cfg         *configs.AppConfig
 }
 
-func NewAuthHandler(as service.AuthService, v *valigo.Valigo, u service.UserService) *AuthHandler {
-	return &AuthHandler{authService: as, validates: v, userService: u}
+func NewAuthHandler(as service.AuthService, v *valigo.Valigo, u service.UserService, cfg *configs.AppConfig) *AuthHandler {
+	return &AuthHandler{authService: as, validates: v, userService: u, cfg: cfg}
 }
 
 func (h *AuthHandler) Me(c *gin.Context) {
@@ -80,8 +83,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// hapus cookie
 	c.SetCookie("access_token", "", -1, "/", "", true, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-
-	res.OK(nil, "logout berhasil", nil)
+	c.Redirect(http.StatusFound, h.cfg.Mail.FrontVerifyUrl+"/login")
 }
 
 func (h *AuthHandler) LogoutAll(c *gin.Context) {
@@ -103,8 +105,7 @@ func (h *AuthHandler) LogoutAll(c *gin.Context) {
 	// hapus cookie
 	c.SetCookie("access_token", "", -1, "/", "", true, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-
-	res.OK(nil, "berhasil logout dari semua perangkat", nil)
+	c.Redirect(http.StatusFound, h.cfg.Mail.FrontVerifyUrl+"/login")
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
