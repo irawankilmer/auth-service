@@ -10,7 +10,7 @@ import (
 func AuthRouteRegister(r *gin.Engine, app *BootstrapApp) {
 	v := valigo.NewValigo()
 
-	authHandler := handler.NewAuthHandler(app.AuthService, v, app.UserService)
+	authHandler := handler.NewAuthHandler(app.AuthService, v, app.UserService, app.CFG)
 	userHandler := handler.NewUserHandler(app.UserService, v)
 	emailVerifyHandler := handler.NewEmailVerificationHandler(app.EVService, v)
 	uSessionHandler := handler.NewUserSessionHandler(app.USService)

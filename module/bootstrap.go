@@ -16,6 +16,7 @@ type BootstrapApp struct {
 	UserService service.UserService
 	EVService   service.EmailVerificationService
 	USService   service.UserSessionService
+	CFG         *configs.AppConfig
 }
 
 func BootstrapInit(db *sql.DB, cfg *configs.AppConfig) *BootstrapApp {

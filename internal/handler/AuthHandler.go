@@ -83,7 +83,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// hapus cookie
 	c.SetCookie("access_token", "", -1, "/", "", true, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-	c.Redirect(http.StatusFound, h.cfg.Mail.FrontVerifyUrl+"/login")
+	c.Redirect(http.StatusFound, "http://localhost:3000/login")
 }
 
 func (h *AuthHandler) LogoutAll(c *gin.Context) {
@@ -105,7 +105,7 @@ func (h *AuthHandler) LogoutAll(c *gin.Context) {
 	// hapus cookie
 	c.SetCookie("access_token", "", -1, "/", "", true, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-	c.Redirect(http.StatusFound, h.cfg.Mail.FrontVerifyUrl+"/login")
+	c.Redirect(http.StatusFound, "http://localhost:3000/login")
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
