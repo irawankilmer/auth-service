@@ -68,4 +68,9 @@ go get gopkg.in/gomail.v2
 
 # 10. cors
 go get github.com/gin-contrib/cors
+
+# 11. Swagger
+go install github.com/swaggo/swag/cmd/swag@latest
+go get github.com/swaggo/gin-swagger
+go get github.com/swaggo/files
 ```

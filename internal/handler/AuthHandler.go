@@ -8,7 +8,6 @@ import (
 	"github.com/irawankilmer/auth-service/internal/dto/request"
 	"github.com/irawankilmer/auth-service/internal/service"
 	"github.com/irawankilmer/auth-service/pkg/response"
-	"net/http"
 )
 
 type AuthHandler struct {
@@ -22,6 +21,16 @@ func NewAuthHandler(as service.AuthService, v *valigo.Valigo, u service.UserServ
 	return &AuthHandler{authService: as, validates: v, userService: u, cfg: cfg}
 }
 
+// Me godoc
+// @Summary Ambil data user login
+// @Description Mengambil data pengguna berdasarkan token
+// @Tags Auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.APIResponse
+// @Failure 401 {object} response.APIResponse
+// @Router /api/auth/me [get]
 func (h *AuthHandler) Me(c *gin.Context) {
 	res := response.NewResponder(c)
 
@@ -42,6 +51,16 @@ func (h *AuthHandler) Me(c *gin.Context) {
 	res.OK(user, "query ok", nil)
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Login user dan generate token JWT
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body request.LoginRequest true "Login payload"
+// @Success 200 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Router /api/auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.LoginRequest
@@ -63,6 +82,16 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	res.OK(token, "login berhasil", nil)
 }
 
+// Logout godoc
+// @Summary Logout dari 1 device
+// @Description Menghapus access & refresh token dari 1 device
+// @Tags Auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.APIResponse
+// @Failure 401 {object} response.APIResponse
+// @Router /api/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	res := response.NewResponder(c)
 
@@ -83,9 +112,20 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	// hapus cookie
 	c.SetCookie("access_token", "", -1, "/", "", true, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-	c.Redirect(http.StatusFound, "http://localhost:3000/login")
+
+	res.OK(nil, "Logout berhasil", nil)
 }
 
+// LogoutAll godoc
+// @Summary Logout dari semua device
+// @Description Logout semua sesi user (semua device)
+// @Tags Auth
+// @Security BearerAuth
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.APIResponse
+// @Failure 401 {object} response.APIResponse
+// @Router /api/auth/logout-all-devices [post]
 func (h *AuthHandler) LogoutAll(c *gin.Context) {
 	res := response.NewResponder(c)
 
@@ -105,9 +145,20 @@ func (h *AuthHandler) LogoutAll(c *gin.Context) {
 	// hapus cookie
 	c.SetCookie("access_token", "", -1, "/", "", true, true)
 	c.SetCookie("refresh_token", "", -1, "/", "", true, true)
-	c.Redirect(http.StatusFound, "http://localhost:3000/login")
+
+	res.OK(nil, "Logout dari semua device berhasil", nil)
 }
 
+// Register godoc
+// @Summary Registrasi user baru
+// @Description Mendaftarkan user baru dan mengirim token verifikasi
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body request.RegisterRequest true "Data registrasi user baru"
+// @Success 200 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Router /api/auth/register [post]
 func (h *AuthHandler) Register(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.RegisterRequest

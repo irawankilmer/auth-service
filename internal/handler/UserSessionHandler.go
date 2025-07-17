@@ -15,6 +15,15 @@ func NewUserSessionHandler(usS service.UserSessionService) *UserSessionHandler {
 	return &UserSessionHandler{usService: usS}
 }
 
+// RefreshToken godoc
+// @Summary Refresh access token
+// @Description Menghasilkan access token dan refresh token baru menggunakan cookie refresh_token
+// @Tags User Sessions
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.APIResponse
+// @Failure 401 {object} response.APIResponse
+// @Router /api/refresh-token [post]
 func (h *UserSessionHandler) RefreshToken(c *gin.Context) {
 	res := response.NewResponder(c)
 	var deviceID, ipAddress, userAgent string

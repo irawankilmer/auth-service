@@ -19,6 +19,16 @@ func NewEmailVerificationHandler(ev service.EmailVerificationService, v *valigo.
 	return &EmailVerificationHandler{evService: ev, validates: v}
 }
 
+// VerifyEmail godoc
+// @Summary Verifikasi token email
+// @Description Memverifikasi token yang dikirim melalui email saat registrasi
+// @Tags Verifikasi Email
+// @Accept json
+// @Produce json
+// @Param request body request.VerifyRequest true "Payload token verifikasi"
+// @Success 200 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Router /api/auth/verify-email [post]
 func (h *EmailVerificationHandler) VerifyEmail(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.VerifyRequest
@@ -37,6 +47,16 @@ func (h *EmailVerificationHandler) VerifyEmail(c *gin.Context) {
 	res.OK(nil, "Email berhasil di verifikas", nil)
 }
 
+// VerifyRegisterResend godoc
+// @Summary Kirim ulang token verifikasi email saat register
+// @Description Mengirim ulang token verifikasi dari cookie "verify_email"
+// @Tags Verifikasi Email
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.APIResponse
+// @Failure 401 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Router /api/auth/verify-register-resend [post]
 func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
 	res := response.NewResponder(c)
 	token, err := c.Cookie("verify_email")
@@ -64,6 +84,17 @@ func (h *EmailVerificationHandler) VerifyRegisterResend(c *gin.Context) {
 	res.OK(newToken, "verifikasi email sudah dirikim ulang", nil)
 }
 
+// VerifyRegisterByAdmin godoc
+// @Summary Verifikasi pendaftaran oleh admin
+// @Description Admin melakukan verifikasi terhadap user menggunakan token
+// @Tags Verifikasi Email
+// @Accept json
+// @Produce json
+// @Param request body request.VerifyRegisterByAdminRequest true "Data verifikasi oleh admin"
+// @Success 200 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Failure 404 {object} response.APIResponse
+// @Router /api/auth/verify-register-by-admin [post]
 func (h *EmailVerificationHandler) VerifyRegisterByAdmin(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.VerifyRegisterByAdminRequest
@@ -99,6 +130,17 @@ func (h *EmailVerificationHandler) VerifyRegisterByAdmin(c *gin.Context) {
 	res.OK(c.Query("email"), "verifikasi berhasil", nil)
 }
 
+// VerifyRegisterByAdminResend godoc
+// @Summary Kirim ulang token verifikasi pendaftaran oleh admin
+// @Description Mengirim ulang token verifikasi ke user dari token yang dikirim admin
+// @Tags Verifikasi Email
+// @Accept json
+// @Produce json
+// @Param request body request.VerifyRegisterByAdminResendRequest true "Payload token lama dari admin"
+// @Success 200 {object} response.APIResponse
+// @Failure 400 {object} response.APIResponse
+// @Failure 404 {object} response.APIResponse
+// @Router /api/auth/verify-register-by-admin-resend [post]
 func (h *EmailVerificationHandler) VerifyRegisterByAdminResend(c *gin.Context) {
 	res := response.NewResponder(c)
 	var req request.VerifyRegisterByAdminResendRequest

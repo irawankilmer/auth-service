@@ -1,0 +1,575 @@
+basePath: /
+definitions:
+  request.LoginRequest:
+    properties:
+      identifier:
+        type: string
+      password:
+        type: string
+    required:
+    - identifier
+    - password
+    type: object
+  request.RegisterRequest:
+    properties:
+      confirm_password:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+      username:
+        type: string
+    required:
+    - confirm_password
+    - email
+    - full_name
+    - password
+    - roles
+    - username
+    type: object
+  request.RoleRequest:
+    properties:
+      roles:
+        items:
+          type: string
+        type: array
+    required:
+    - roles
+    type: object
+  request.UserCreateRequest:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      roles:
+        items:
+          type: string
+        type: array
+    required:
+    - email
+    - full_name
+    - roles
+    type: object
+  request.UserUpdateEmailRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  request.VerifyRegisterByAdminRequest:
+    properties:
+      password:
+        minLength: 6
+        type: string
+      password_confirm:
+        type: string
+      token:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - password_confirm
+    - token
+    - username
+    type: object
+  request.VerifyRegisterByAdminResendRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  request.VerifyRequest:
+    properties:
+      token:
+        type: string
+    required:
+    - token
+    type: object
+  response.APIResponse:
+    properties:
+      code:
+        type: integer
+      data: {}
+      errors: {}
+      message:
+        type: string
+      meta:
+        $ref: '#/definitions/response.MetaData'
+      status:
+        type: string
+    type: object
+  response.MetaData:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: dev@yourapp.com
+    name: Kirdun Developer
+    url: https://yourapp.com
+  description: Dokumentasi API untuk Auth Service
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://yourapp.com/terms/
+  title: Auth Service API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login user dan generate token JWT
+      parameters:
+      - description: Login payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Login user
+      tags:
+      - Auth
+  /api/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Menghapus access & refresh token dari 1 device
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout dari 1 device
+      tags:
+      - Auth
+  /api/auth/logout-all-devices:
+    post:
+      consumes:
+      - application/json
+      description: Logout semua sesi user (semua device)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout dari semua device
+      tags:
+      - Auth
+  /api/auth/me:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil data pengguna berdasarkan token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Ambil data user login
+      tags:
+      - Auth
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Mendaftarkan user baru dan mengirim token verifikasi
+      parameters:
+      - description: Data registrasi user baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Registrasi user baru
+      tags:
+      - Auth
+  /api/auth/verify-email:
+    post:
+      consumes:
+      - application/json
+      description: Memverifikasi token yang dikirim melalui email saat registrasi
+      parameters:
+      - description: Payload token verifikasi
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.VerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Verifikasi token email
+      tags:
+      - Verifikasi Email
+  /api/auth/verify-register-by-admin:
+    post:
+      consumes:
+      - application/json
+      description: Admin melakukan verifikasi terhadap user menggunakan token
+      parameters:
+      - description: Data verifikasi oleh admin
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.VerifyRegisterByAdminRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Verifikasi pendaftaran oleh admin
+      tags:
+      - Verifikasi Email
+  /api/auth/verify-register-by-admin-resend:
+    post:
+      consumes:
+      - application/json
+      description: Mengirim ulang token verifikasi ke user dari token yang dikirim
+        admin
+      parameters:
+      - description: Payload token lama dari admin
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.VerifyRegisterByAdminResendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Kirim ulang token verifikasi pendaftaran oleh admin
+      tags:
+      - Verifikasi Email
+  /api/auth/verify-register-resend:
+    post:
+      consumes:
+      - application/json
+      description: Mengirim ulang token verifikasi dari cookie "verify_email"
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Kirim ulang token verifikasi email saat register
+      tags:
+      - Verifikasi Email
+  /api/refresh-token:
+    post:
+      consumes:
+      - application/json
+      description: Menghasilkan access token dan refresh token baru menggunakan cookie
+        refresh_token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      summary: Refresh access token
+      tags:
+      - User Sessions
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil daftar user dengan pagination
+      parameters:
+      - description: Halaman saat ini
+        in: query
+        name: page
+        type: integer
+      - description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Ambil semua user
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Membuat user baru oleh super admin
+      parameters:
+      - description: Data user baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Tambah user baru
+      tags:
+      - Users
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus user berdasarkan ID
+      parameters:
+      - description: ID user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Hapus user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Mengambil informasi user berdasarkan ID
+      parameters:
+      - description: ID user
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Ambil user berdasarkan ID
+      tags:
+      - Users
+  /api/users/{id}/email:
+    patch:
+      consumes:
+      - application/json
+      description: Memperbarui email user berdasarkan ID
+      parameters:
+      - description: ID user
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Email baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserUpdateEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui email user
+      tags:
+      - Users
+  /api/users/{id}/roles-update:
+    patch:
+      consumes:
+      - application/json
+      description: Menambahkan atau mengubah role user
+      parameters:
+      - description: ID user
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Daftar role baru
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RoleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Perbarui role user
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    description: 'Masukkan token dengan format: Bearer <token>'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
